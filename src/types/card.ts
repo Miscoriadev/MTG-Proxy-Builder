@@ -25,6 +25,7 @@ export interface ScryfallCard {
   artist?: string;
   set_name?: string;
   rarity?: 'common' | 'uncommon' | 'rare' | 'mythic';
+  frame_effects?: string[];
 }
 
 export type ManaSymbol = ManaColor | 'C' | 'T' | 'X' | string;

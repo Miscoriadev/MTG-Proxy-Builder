@@ -1,31 +1,54 @@
-import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { ScryfallCard } from '../../types';
+import { scryfallApi } from '../../services/scryfallApi';
 import styles from './Controls.module.css';
 
 interface CardSelectorProps {
-  cards: ScryfallCard[];
   selectedCard: ScryfallCard | null;
   onSelect: (card: ScryfallCard) => void;
 }
 
-export function CardSelector({ cards, selectedCard, onSelect }: CardSelectorProps) {
+export function CardSelector({ selectedCard, onSelect }: CardSelectorProps) {
   const [query, setQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [skipNextSearch, setSkipNextSearch] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const filteredCards = useMemo(() => {
-    if (!query.trim()) return [];
+  // Debounced autocomplete search
+  useEffect(() => {
+    if (skipNextSearch) {
+      setSkipNextSearch(false);
+      return;
+    }
 
-    const searchTerm = query.toLowerCase();
-    return cards
-      .filter(card => card.name.toLowerCase().includes(searchTerm))
-      .slice(0, 50);
-  }, [cards, query]);
+    if (query.length < 2) {
+      setSuggestions([]);
+      return;
+    }
 
-  const handleSelect = useCallback((card: ScryfallCard) => {
-    onSelect(card);
-    setQuery(card.name);
+    const timer = setTimeout(async () => {
+      setIsLoading(true);
+      const results = await scryfallApi.autocomplete(query);
+      setSuggestions(results);
+      setIsLoading(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [query, skipNextSearch]);
+
+  const handleSelect = useCallback(async (name: string) => {
+    setIsLoading(true);
+    const card = await scryfallApi.getCardByName(name);
+    if (card) {
+      onSelect(card);
+      setSkipNextSearch(true);
+      setQuery(card.name);
+    }
+    setIsLoading(false);
     setIsOpen(false);
+    setSuggestions([]);
   }, [onSelect]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,6 +68,7 @@ export function CardSelector({ cards, selectedCard, onSelect }: CardSelectorProp
 
   useEffect(() => {
     if (selectedCard) {
+      setSkipNextSearch(true);
       setQuery(selectedCard.name);
     }
   }, [selectedCard]);
@@ -53,24 +77,26 @@ export function CardSelector({ cards, selectedCard, onSelect }: CardSelectorProp
     <div className={styles.controlGroup}>
       <label className={styles.label}>Select Card</label>
       <div className={styles.selectorContainer} ref={containerRef}>
-        <input
-          type="text"
-          className={styles.input}
-          value={query}
-          onChange={handleInputChange}
-          onFocus={() => query && setIsOpen(true)}
-          placeholder="Search cards..."
-        />
-        {isOpen && filteredCards.length > 0 && (
+        <div className={styles.inputWrapper}>
+          <input
+            type="text"
+            className={`${styles.input} ${isLoading ? styles.inputWithSpinner : ''}`}
+            value={query}
+            onChange={handleInputChange}
+            onFocus={() => query.length >= 2 && setIsOpen(true)}
+            placeholder="Search cards..."
+          />
+          {isLoading && <div className={styles.spinner} />}
+        </div>
+        {isOpen && suggestions.length > 0 && !isLoading && (
           <ul className={styles.dropdown}>
-            {filteredCards.map(card => (
+            {suggestions.map(name => (
               <li
-                key={card.id}
+                key={name}
                 className={styles.option}
-                onClick={() => handleSelect(card)}
+                onClick={() => handleSelect(name)}
               >
-                <span className={styles.cardName}>{card.name}</span>
-                <span className={styles.cardType}>{card.type_line}</span>
+                <span className={styles.cardName}>{name}</span>
               </li>
             ))}
           </ul>

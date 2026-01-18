@@ -11,33 +11,34 @@
         "R": "/borders/classic/red.png",
         "G": "/borders/classic/green.png",
         "C": "/borders/classic/colorless.png",
-        "M": "/borders/classic/gold.png"
+        "M": "/borders/classic/gold.png",
+        "M-Legendary": "/borders/classic/legendary_frame.png"
       },
       "textPositions": {
         "name": {
-          "x": 9,
-          "y": 5.7,
+          "x": 8.5,
+          "y": 6,
           "width": 65,
           "height": 6,
-          "fontSize": 10,
+          "fontSize": 9,
           "fontFamily": "Beleren2016, Beleren, serif",
           "color": "#000000",
           "align": "left"
         },
         "manaCost": {
           "x": 70,
-          "y": 5.7,
+          "y": 6,
           "width": 22,
           "height": 6,
-          "fontSize": 8,
+          "fontSize": 6.5,
           "align": "right"
         },
         "typeLine": {
-          "x": 9,
+          "x": 8.5,
           "y": 57.6,
           "width": 84,
           "height": 5,
-          "fontSize": 9,
+          "fontSize": 8,
           "fontFamily": "Beleren2016, Beleren, serif",
           "color": "#000000",
           "align": "left"
@@ -89,7 +90,6 @@
         "B": "/symbols/B.svg",
         "R": "/symbols/R.svg",
         "G": "/symbols/G.svg",
-        "C": "/symbols/C.svg",
         "T": "/symbols/T.svg",
         "0": "/symbols/0.svg",
         "1": "/symbols/1.svg",

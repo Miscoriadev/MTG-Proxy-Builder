@@ -649,6 +649,21 @@ export async function renderCard(
     console.warn("Failed to load border image:", e);
   }
 
+  // Draw legendary overlay if card has legendary frame effect
+  if (card.frame_effects?.includes("legendary")) {
+    const legendaryKey = `${borderColor}-Legendary`;
+    const legendaryUrl = border.images[legendaryKey];
+
+    if (legendaryUrl) {
+      try {
+        const legendaryImage = await loadImage(proxyImageUrl(legendaryUrl));
+        ctx.drawImage(legendaryImage, 0, 0, width, height);
+      } catch (e) {
+        console.warn("Failed to load legendary overlay:", e);
+      }
+    }
+  }
+
   // Draw card name
   const namePos = getScaledPosition(
     border.textPositions.name,
@@ -717,11 +732,6 @@ export async function renderCard(
       height,
       scaleFactor,
     );
-
-    // DEBUG: Draw rectangle around oracle text box
-    ctx.strokeStyle = "red";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(oraclePos.x, oraclePos.y, oraclePos.width, oraclePos.height);
 
     const flavorPos = hasFlavorText
       ? getScaledPosition(

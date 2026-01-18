@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { ScryfallCard, BorderConfig, BackgroundsData, SymbolsData } from '../../types';
+import { BorderConfig, BackgroundsData, SymbolsData } from '../../types';
 import { useCardBuilder } from '../../hooks';
 import { CardPreview, CardCanvasHandle } from '../CardPreview';
 import { CardSelector, BorderSelector, BackgroundSelector, DpiSelector } from '../Controls';
@@ -7,13 +7,12 @@ import styles from './CardBuilder.module.css';
 import controlStyles from '../Controls/Controls.module.css';
 
 interface CardBuilderProps {
-  cards: ScryfallCard[];
   borders: BorderConfig[];
   backgrounds: BackgroundsData;
   symbols: SymbolsData;
 }
 
-export function CardBuilder({ cards, borders, backgrounds, symbols }: CardBuilderProps) {
+export function CardBuilder({ borders, backgrounds, symbols }: CardBuilderProps) {
   const canvasRef = useRef<CardCanvasHandle>(null);
 
   const {
@@ -26,7 +25,7 @@ export function CardBuilder({ cards, borders, backgrounds, symbols }: CardBuilde
     selectBorder,
     selectBackground,
     setDpi,
-  } = useCardBuilder(cards, borders, backgrounds);
+  } = useCardBuilder(borders, backgrounds);
 
   const handleDownload = () => {
     canvasRef.current?.download();
@@ -48,7 +47,6 @@ export function CardBuilder({ cards, borders, backgrounds, symbols }: CardBuilde
       <div className={styles.controlsSection}>
         <div className={styles.controlPanel}>
           <CardSelector
-            cards={cards}
             selectedCard={selectedCard}
             onSelect={selectCard}
           />

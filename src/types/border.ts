@@ -27,6 +27,7 @@ export interface BorderColorImages {
   G: string;
   C: string;
   M?: string;
+  [key: string]: string | undefined;
 }
 
 export interface ManaSymbolPaths {

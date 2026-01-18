@@ -2,19 +2,13 @@ import { useState, useMemo, useCallback } from 'react';
 import { ScryfallCard, BorderConfig, BackgroundImage, BackgroundsData } from '../types';
 
 export function useCardBuilder(
-  cards: ScryfallCard[],
   borders: BorderConfig[],
   backgrounds: BackgroundsData
 ) {
-  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [selectedCard, setSelectedCard] = useState<ScryfallCard | null>(null);
   const [selectedBorderId, setSelectedBorderId] = useState<string | null>(null);
   const [selectedBackgroundIndex, setSelectedBackgroundIndex] = useState<number>(0);
   const [dpi, setDpi] = useState<number>(300);
-
-  const selectedCard = useMemo(
-    () => cards.find(c => c.id === selectedCardId) || null,
-    [cards, selectedCardId]
-  );
 
   const selectedBorder = useMemo(
     () => borders.find(b => b.id === selectedBorderId) || borders[0] || null,
@@ -48,7 +42,7 @@ export function useCardBuilder(
   );
 
   const selectCard = useCallback((card: ScryfallCard) => {
-    setSelectedCardId(card.id);
+    setSelectedCard(card);
     setSelectedBackgroundIndex(0);
   }, []);
 

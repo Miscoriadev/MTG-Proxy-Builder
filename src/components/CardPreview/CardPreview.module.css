@@ -1,0 +1,132 @@
+.cardContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.cardFrame {
+  position: relative;
+  width: 336px;
+  height: 469px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background: #1a1a2e;
+}
+
+.layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.backgroundLayer {
+  composes: layer;
+  z-index: 1;
+}
+
+.backgroundImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.borderLayer {
+  composes: layer;
+  z-index: 2;
+}
+
+.borderImage {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.textLayer {
+  composes: layer;
+  z-index: 3;
+}
+
+.placeholder {
+  width: 336px;
+  height: 469px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 12px;
+  color: #888;
+  font-style: italic;
+  text-align: center;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.textElement {
+  position: absolute;
+  overflow: hidden;
+  line-height: 1.2;
+}
+
+.oracleText {
+  position: absolute;
+  overflow: hidden;
+  line-height: 1.3;
+  white-space: pre-wrap;
+}
+
+.flavorText {
+  position: absolute;
+  overflow: hidden;
+  font-style: italic;
+  line-height: 1.3;
+}
+
+.powerToughness {
+  position: absolute;
+  font-weight: bold;
+}
+
+.manaCostContainer {
+  position: absolute;
+  display: flex;
+  gap: 2px;
+  justify-content: flex-end;
+}
+
+.manaSymbol {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+  color: #000;
+}
+
+.manaSymbol.W { background: linear-gradient(135deg, #FFFBD5 0%, #F8E7B9 100%); }
+.manaSymbol.U { background: linear-gradient(135deg, #AAE0FA 0%, #0E68AB 100%); color: #fff; }
+.manaSymbol.B { background: linear-gradient(135deg, #CAC5C0 0%, #150B00 100%); color: #fff; }
+.manaSymbol.R { background: linear-gradient(135deg, #F9AA8F 0%, #D3202A 100%); }
+.manaSymbol.G { background: linear-gradient(135deg, #9BD3AE 0%, #00733E 100%); }
+.manaSymbol.C { background: linear-gradient(135deg, #CBC2BF 0%, #9A9A9A 100%); }
+.manaSymbol.generic { background: linear-gradient(135deg, #CBC2BF 0%, #9A9A9A 100%); }
+
+.inlineSymbol {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: bold;
+  vertical-align: middle;
+  margin: 0 1px;
+}

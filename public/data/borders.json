@@ -1,0 +1,113 @@
+{
+  "borders": [
+    {
+      "id": "classic",
+      "name": "Classic",
+      "description": "Traditional Magic card border style",
+      "images": {
+        "W": "/borders/classic/white.png",
+        "U": "/borders/classic/blue.png",
+        "B": "/borders/classic/black.png",
+        "R": "/borders/classic/red.png",
+        "G": "/borders/classic/green.png",
+        "C": "/borders/classic/colorless.png",
+        "M": "/borders/classic/gold.png"
+      },
+      "textPositions": {
+        "name": {
+          "x": 9,
+          "y": 5.7,
+          "width": 65,
+          "height": 6,
+          "fontSize": 16,
+          "fontFamily": "Beleren2016, Beleren, serif",
+          "color": "#000000",
+          "align": "left"
+        },
+        "manaCost": {
+          "x": 70,
+          "y": 5.9,
+          "width": 22,
+          "height": 6,
+          "fontSize": 14,
+          "align": "right"
+        },
+        "typeLine": {
+          "x": 9,
+          "y": 57.6,
+          "width": 84,
+          "height": 5,
+          "fontSize": 13,
+          "fontFamily": "Beleren2016, Beleren, serif",
+          "color": "#000000",
+          "align": "left"
+        },
+        "oracleText": {
+          "x": 9,
+          "y": 64,
+          "width": 82,
+          "height": 22,
+          "fontSize": 12,
+          "fontFamily": "MPlantin, Georgia, serif",
+          "color": "#000000",
+          "align": "left"
+        },
+        "flavorText": {
+          "x": 9,
+          "y": 82,
+          "width": 82,
+          "height": 8,
+          "fontSize": 11,
+          "fontFamily": "MPlantin, Georgia, serif",
+          "color": "#000000",
+          "align": "left"
+        },
+        "powerToughness": {
+          "x": 78,
+          "y": 91,
+          "width": 15,
+          "height": 5,
+          "fontSize": 16,
+          "fontFamily": "Beleren2016, Beleren, serif",
+          "color": "#000000",
+          "align": "center"
+        },
+        "loyalty": {
+          "x": 80,
+          "y": 91,
+          "width": 12,
+          "height": 5,
+          "fontSize": 18,
+          "fontFamily": "Beleren2016, Beleren, serif",
+          "color": "#FFFFFF",
+          "align": "center"
+        }
+      },
+      "manaSymbols": {
+        "W": "/symbols/W.svg",
+        "U": "/symbols/U.svg",
+        "B": "/symbols/B.svg",
+        "R": "/symbols/R.svg",
+        "G": "/symbols/G.svg",
+        "C": "/symbols/C.svg",
+        "T": "/symbols/T.svg",
+        "0": "/symbols/0.svg",
+        "1": "/symbols/1.svg",
+        "2": "/symbols/2.svg",
+        "3": "/symbols/3.svg",
+        "4": "/symbols/4.svg",
+        "5": "/symbols/5.svg",
+        "6": "/symbols/6.svg",
+        "7": "/symbols/7.svg",
+        "8": "/symbols/8.svg",
+        "9": "/symbols/9.svg",
+        "10": "/symbols/10.svg",
+        "X": "/symbols/X.svg"
+      },
+      "cardDimensions": {
+        "width": 336,
+        "height": 469
+      }
+    }
+  ]
+}

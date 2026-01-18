@@ -1,0 +1,149 @@
+.controlPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: #1a1a2e;
+  border-radius: 8px;
+  min-width: 300px;
+}
+
+.controlGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #e0e0e0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.selectorContainer {
+  position: relative;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #16213e;
+  border: 1px solid #2a3f5f;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: #4a90d9;
+}
+
+.input::placeholder {
+  color: #6b7c93;
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  background: #16213e;
+  border: 1px solid #2a3f5f;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  z-index: 100;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.option {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid #2a3f5f;
+  transition: background 0.15s;
+}
+
+.option:last-child {
+  border-bottom: none;
+}
+
+.option:hover {
+  background: #2a3f5f;
+}
+
+.cardName {
+  display: block;
+  color: #fff;
+  font-weight: 500;
+}
+
+.cardType {
+  display: block;
+  color: #6b7c93;
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
+.select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #16213e;
+  border: 1px solid #2a3f5f;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7c93' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+}
+
+.select:focus {
+  border-color: #4a90d9;
+}
+
+.thumbnailGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.thumbnail {
+  aspect-ratio: 1;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.thumbnail:hover {
+  transform: scale(1.05);
+}
+
+.thumbnail.selected {
+  border-color: #4a90d9;
+}
+
+.thumbnailImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.noBackgrounds {
+  color: #6b7c93;
+  font-size: 0.875rem;
+  text-align: center;
+  padding: 1rem;
+}

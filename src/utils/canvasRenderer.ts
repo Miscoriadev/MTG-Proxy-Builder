@@ -265,13 +265,21 @@ async function drawTextWithManaSymbols(
   symbolsData: SymbolsData | undefined,
 ): Promise<number> {
   const parsed = parseOracleText(text);
-  const symbolSize = fontSize * 1.1;
-  const lineHeight = fontSize * 1.3;
+  const symbolSize = fontSize * 1.0; // TUNE: Mana symbol size relative to font
+  const wrapLineHeight = fontSize * 1.1; // TUNE: Line spacing for word-wrap
+  const newlineHeight = fontSize * 1.55; // TUNE: Line spacing for explicit newlines
   let currentX = x;
   let currentY = y + fontSize;
   let lineStartX = x;
+  let inParentheses = false;
 
-  ctx.font = `${fontSize}px ${fontFamily}`;
+  const setFont = (italic: boolean) => {
+    ctx.font = italic
+      ? `italic ${fontSize}px ${fontFamily}`
+      : `${fontSize}px ${fontFamily}`;
+  };
+
+  setFont(false);
   ctx.fillStyle = color;
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
@@ -283,51 +291,237 @@ async function drawTextWithManaSymbols(
 
       for (let i = 0; i < segments.length; i++) {
         if (i > 0) {
-          // New line
-          currentY += lineHeight;
+          // Explicit new line - use larger spacing
+          currentY += newlineHeight;
           currentX = lineStartX;
         }
 
-        const words = segments[i].split(" ");
+        const segment = segments[i];
 
-        for (const word of words) {
-          if (!word) continue;
+        // Check for ability word pattern (text before em-dash or hyphen at start of segment)
+        const abilityWordMatch = segment.match(/^([^—-]+)[—-]\s*/);
+        let abilityWordEnd = 0;
+        if (abilityWordMatch && currentX === lineStartX) {
+          abilityWordEnd = abilityWordMatch[0].length;
+        }
 
-          const wordWidth = ctx.measureText(word + " ").width;
+        // Process character by character to handle parentheses and ability words
+        let wordBuffer = "";
+        let wordIsItalic = false;
+
+        const flushWord = () => {
+          if (!wordBuffer) return;
+
+          const wordWithSpace = wordBuffer + " ";
+          const wordWidth = ctx.measureText(wordWithSpace).width;
 
           if (currentX + wordWidth > x + maxWidth && currentX > lineStartX) {
-            currentY += lineHeight;
+            currentY += wrapLineHeight;
             currentX = lineStartX;
           }
 
-          ctx.fillText(word + " ", currentX, currentY);
+          setFont(wordIsItalic);
+          ctx.fillText(wordWithSpace, currentX, currentY);
           currentX += wordWidth;
+          wordBuffer = "";
+        };
+
+        for (let charIdx = 0; charIdx < segment.length; charIdx++) {
+          const char = segment[charIdx];
+          const isInAbilityWord = charIdx < abilityWordEnd;
+
+          if (char === "(") {
+            flushWord();
+            inParentheses = true;
+            wordIsItalic = true;
+            wordBuffer = char;
+          } else if (char === ")") {
+            wordBuffer += char;
+            flushWord();
+            inParentheses = false;
+            wordIsItalic = false;
+          } else if (char === " ") {
+            flushWord();
+            wordIsItalic = inParentheses || isInAbilityWord;
+          } else {
+            if (
+              wordBuffer === "" ||
+              (inParentheses === wordIsItalic &&
+                isInAbilityWord === wordIsItalic)
+            ) {
+              wordIsItalic = inParentheses || isInAbilityWord;
+              wordBuffer += char;
+            } else {
+              // Style changed mid-word, flush and start new
+              const newItalic: boolean = inParentheses || isInAbilityWord;
+              if (newItalic !== wordIsItalic) {
+                flushWord();
+                wordIsItalic = newItalic;
+              }
+              wordBuffer += char;
+            }
+          }
         }
+
+        flushWord();
       }
     } else {
       // Mana symbol
       if (currentX + symbolSize > x + maxWidth && currentX > lineStartX) {
-        currentY += lineHeight;
+        currentY += wrapLineHeight;
         currentX = lineStartX;
       }
 
       const displayValue = part.type === "tap" ? "T" : part.value;
+      // Center the symbol vertically with the text
+      // currentY is the baseline; place symbol so its center is at the x-height (roughly 0.5 * fontSize above baseline)
+      const symbolY = currentY - fontSize * 0.32 - symbolSize / 2;
       await drawManaSymbol(
         ctx,
         displayValue,
         currentX,
-        currentY - fontSize + (fontSize - symbolSize) / 2,
+        symbolY,
         symbolSize,
         borderManaSymbols,
         symbolsData,
       );
-      currentX += symbolSize + 2;
+      currentX += symbolSize + 7; // Add small space after symbol
     }
   }
 
   // Return height from y to the bottom of the last line of text
   // currentY is the baseline, so we add a small amount for descenders
   return currentY - y + fontSize * 0.3;
+}
+
+// Measures the height of text with mana symbols WITHOUT drawing
+// Used to calculate if text will fit in available space
+// This mirrors the logic in drawTextWithManaSymbols for accurate measurement
+function measureTextWithManaSymbols(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+  fontSize: number,
+  fontFamily: string,
+): number {
+  const parsed = parseOracleText(text);
+  const symbolSize = fontSize * 1.0; // TUNE: Same as drawTextWithManaSymbols
+  const wrapLineHeight = fontSize * 1.1; // TUNE: Same as drawTextWithManaSymbols
+  const newlineHeight = fontSize * 1.55; // TUNE: Same as drawTextWithManaSymbols
+  let currentX = 0;
+  let currentY = fontSize;
+  const lineStartX = 0;
+  let inParentheses = false;
+
+  const setFont = (italic: boolean) => {
+    ctx.font = italic
+      ? `italic ${fontSize}px ${fontFamily}`
+      : `${fontSize}px ${fontFamily}`;
+  };
+
+  setFont(false);
+
+  for (const part of parsed) {
+    if (typeof part === "string") {
+      const segments = part.split("\n");
+
+      for (let i = 0; i < segments.length; i++) {
+        if (i > 0) {
+          currentY += newlineHeight;
+          currentX = lineStartX;
+        }
+
+        const segment = segments[i];
+
+        // Check for ability word pattern (same as drawing function)
+        const abilityWordMatch = segment.match(/^([^—-]+)[—-]\s*/);
+        let abilityWordEnd = 0;
+        if (abilityWordMatch && currentX === lineStartX) {
+          abilityWordEnd = abilityWordMatch[0].length;
+        }
+
+        // Process character by character (matching drawing function)
+        let wordBuffer = "";
+        let wordIsItalic = false;
+
+        const flushWord = () => {
+          if (!wordBuffer) return;
+
+          const wordWithSpace = wordBuffer + " ";
+          setFont(wordIsItalic);
+          const wordWidth = ctx.measureText(wordWithSpace).width;
+
+          if (currentX + wordWidth > maxWidth && currentX > lineStartX) {
+            currentY += wrapLineHeight;
+            currentX = lineStartX;
+          }
+
+          currentX += wordWidth;
+          wordBuffer = "";
+        };
+
+        for (let charIdx = 0; charIdx < segment.length; charIdx++) {
+          const char = segment[charIdx];
+          const isInAbilityWord = charIdx < abilityWordEnd;
+
+          if (char === "(") {
+            flushWord();
+            inParentheses = true;
+            wordIsItalic = true;
+            wordBuffer = char;
+          } else if (char === ")") {
+            wordBuffer += char;
+            flushWord();
+            inParentheses = false;
+            wordIsItalic = false;
+          } else if (char === " ") {
+            flushWord();
+            wordIsItalic = inParentheses || isInAbilityWord;
+          } else {
+            if (
+              wordBuffer === "" ||
+              (inParentheses === wordIsItalic && isInAbilityWord === wordIsItalic)
+            ) {
+              wordIsItalic = inParentheses || isInAbilityWord;
+              wordBuffer += char;
+            } else {
+              const newItalic: boolean = inParentheses || isInAbilityWord;
+              if (newItalic !== wordIsItalic) {
+                flushWord();
+                wordIsItalic = newItalic;
+              }
+              wordBuffer += char;
+            }
+          }
+        }
+
+        flushWord();
+      }
+    } else {
+      // Mana symbol
+      if (currentX + symbolSize > maxWidth && currentX > lineStartX) {
+        currentY += wrapLineHeight;
+        currentX = lineStartX;
+      }
+      currentX += symbolSize + 7;
+    }
+  }
+
+  return currentY + fontSize * 0.3;
+}
+
+// Measures flavor text height (simple text wrapping, italic)
+function measureFlavorText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+  fontSize: number,
+  fontFamily: string,
+): number {
+  ctx.font = `italic ${fontSize}px ${fontFamily}`;
+  const lines = wrapText(ctx, text, maxWidth);
+  const lineHeight = fontSize * 1.3;
+  return lines.length * lineHeight;
 }
 
 async function drawManaCost(
@@ -350,10 +544,10 @@ async function drawManaCost(
 
   // Set up shadow for mana cost symbols
   ctx.save();
-  ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
+  ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
   ctx.shadowBlur = symbolSize * 0.05;
-  ctx.shadowOffsetX = symbolSize * -0.05;
-  ctx.shadowOffsetY = symbolSize * 0.05;
+  ctx.shadowOffsetX = symbolSize * 0;
+  ctx.shadowOffsetY = symbolSize * 0.1;
 
   for (const symbol of symbols) {
     const displayValue = symbol.type === "tap" ? "T" : symbol.value;
@@ -398,17 +592,29 @@ export async function renderCard(
   // Collect all font families used in this border config and ensure they're loaded
   const fontFamilies = new Set<string>();
   fontFamilies.add(border.textPositions.name.fontFamily || "Georgia, serif");
-  fontFamilies.add(border.textPositions.manaCost.fontFamily || "Georgia, serif");
-  fontFamilies.add(border.textPositions.typeLine.fontFamily || "Georgia, serif");
-  fontFamilies.add(border.textPositions.oracleText.fontFamily || "Georgia, serif");
+  fontFamilies.add(
+    border.textPositions.manaCost.fontFamily || "Georgia, serif",
+  );
+  fontFamilies.add(
+    border.textPositions.typeLine.fontFamily || "Georgia, serif",
+  );
+  fontFamilies.add(
+    border.textPositions.oracleText.fontFamily || "Georgia, serif",
+  );
   if (border.textPositions.flavorText) {
-    fontFamilies.add(border.textPositions.flavorText.fontFamily || "Georgia, serif");
+    fontFamilies.add(
+      border.textPositions.flavorText.fontFamily || "Georgia, serif",
+    );
   }
   if (border.textPositions.powerToughness) {
-    fontFamilies.add(border.textPositions.powerToughness.fontFamily || "Georgia, serif");
+    fontFamilies.add(
+      border.textPositions.powerToughness.fontFamily || "Georgia, serif",
+    );
   }
   if (border.textPositions.loyalty) {
-    fontFamilies.add(border.textPositions.loyalty.fontFamily || "Georgia, serif");
+    fontFamilies.add(
+      border.textPositions.loyalty.fontFamily || "Georgia, serif",
+    );
   }
 
   // Load all fonts in parallel
@@ -499,66 +705,128 @@ export async function renderCard(
   ctx.textBaseline = "top";
   ctx.fillText(card.type_line, typePos.x, typePos.y);
 
-  // Draw oracle text and get its height
+  // Draw oracle text and flavor text with dynamic font sizing
   let oracleEndY = 0;
-  if (card.oracle_text) {
+  const hasOracleText = !!card.oracle_text;
+  const hasFlavorText = !!card.flavor_text && !!border.textPositions.flavorText;
+
+  if (hasOracleText || hasFlavorText) {
     const oraclePos = getScaledPosition(
       border.textPositions.oracleText,
       width,
       height,
       scaleFactor,
     );
-    const oracleHeight = await drawTextWithManaSymbols(
-      ctx,
-      card.oracle_text,
-      oraclePos.x,
-      oraclePos.y,
-      oraclePos.width,
-      oraclePos.fontSize,
-      oraclePos.fontFamily,
-      oraclePos.color,
-      borderManaSymbols,
-      symbolsData,
-    );
-    oracleEndY = oraclePos.y + oracleHeight;
-  }
 
-  // Draw flavor text below oracle text with divider
-  if (card.flavor_text && border.textPositions.flavorText) {
-    const flavorPos = getScaledPosition(
-      border.textPositions.flavorText,
-      width,
-      height,
-      scaleFactor,
-    );
-    const gapSize = flavorPos.fontSize * 1.5; // Total gap between oracle and flavor text
+    // DEBUG: Draw rectangle around oracle text box
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(oraclePos.x, oraclePos.y, oraclePos.width, oraclePos.height);
 
-    // Calculate Y position based on oracle text end (or use default if no oracle text)
-    const flavorY = card.oracle_text ? oracleEndY + gapSize : flavorPos.y;
+    const flavorPos = hasFlavorText
+      ? getScaledPosition(
+          border.textPositions.flavorText!,
+          width,
+          height,
+          scaleFactor,
+        )
+      : null;
 
-    // Draw divider line centered between oracle and flavor text
-    if (card.oracle_text) {
-      const dividerY = oracleEndY + gapSize / 2;
-      ctx.beginPath();
-      ctx.moveTo(flavorPos.x, dividerY);
-      ctx.lineTo(flavorPos.x + flavorPos.width, dividerY);
-      ctx.strokeStyle = "rgba(0, 0, 0, 0.3)";
-      ctx.lineWidth = 1 * scaleFactor;
-      ctx.stroke();
+    // Calculate available height for text (use oraclePos.height as the constraint)
+    const availableHeight = oraclePos.height;
+    const baseFontSize = oraclePos.fontSize;
+    const minFontSize = baseFontSize * 0.5; // TUNE: Minimum font size (50% of base)
+    const fontStep = 1; // TUNE: Font size reduction step
+
+    // Function to calculate total height at a given font size
+    const calculateTotalHeight = (fontSize: number): number => {
+      let totalHeight = 0;
+
+      if (hasOracleText) {
+        totalHeight += measureTextWithManaSymbols(
+          ctx,
+          card.oracle_text!,
+          oraclePos.width,
+          fontSize,
+          oraclePos.fontFamily,
+        );
+      }
+
+      if (hasFlavorText && flavorPos) {
+        const gapSize = fontSize * 1.5; // Gap between oracle and flavor
+        if (hasOracleText) {
+          totalHeight += gapSize;
+        }
+        totalHeight += measureFlavorText(
+          ctx,
+          card.flavor_text!,
+          flavorPos.width,
+          fontSize,
+          flavorPos.fontFamily,
+        );
+      }
+
+      return totalHeight;
+    };
+
+    // Find the optimal font size that fits
+    let fontSize = baseFontSize;
+    while (fontSize > minFontSize) {
+      const totalHeight = calculateTotalHeight(fontSize);
+      if (totalHeight <= availableHeight) {
+        break;
+      }
+      fontSize -= fontStep;
     }
 
-    // Draw flavor text
-    ctx.font = `italic ${flavorPos.fontSize}px ${flavorPos.fontFamily}`;
-    ctx.fillStyle = flavorPos.color;
-    ctx.textAlign = flavorPos.align as CanvasTextAlign;
-    ctx.textBaseline = "top";
+    // Draw oracle text with calculated font size
+    if (hasOracleText) {
+      const oracleHeight = await drawTextWithManaSymbols(
+        ctx,
+        card.oracle_text!,
+        oraclePos.x,
+        oraclePos.y,
+        oraclePos.width,
+        fontSize,
+        oraclePos.fontFamily,
+        oraclePos.color,
+        borderManaSymbols,
+        symbolsData,
+      );
+      oracleEndY = oraclePos.y + oracleHeight;
+    }
 
-    const lines = wrapText(ctx, card.flavor_text, flavorPos.width);
-    const lineHeight = flavorPos.fontSize * 1.3;
+    // Draw flavor text below oracle text with divider
+    if (hasFlavorText && flavorPos) {
+      const gapSize = fontSize * 1.5; // Total gap between oracle and flavor text
 
-    lines.forEach((line, index) => {
-      ctx.fillText(line, flavorPos.x, flavorY + index * lineHeight);
-    });
+      // Calculate Y position based on oracle text end (or use default if no oracle text)
+      const flavorY = hasOracleText ? oracleEndY + gapSize : flavorPos.y;
+
+      // Draw divider line centered between oracle and flavor text
+      if (hasOracleText) {
+        const dividerY = oracleEndY + gapSize / 2;
+        ctx.beginPath();
+        ctx.moveTo(flavorPos.x, dividerY);
+        ctx.lineTo(flavorPos.x + flavorPos.width, dividerY);
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.3)";
+        ctx.lineWidth = 1 * scaleFactor;
+        ctx.stroke();
+      }
+
+      // Draw flavor text with calculated font size
+      ctx.font = `italic ${fontSize}px ${flavorPos.fontFamily}`;
+      ctx.fillStyle = flavorPos.color;
+      ctx.textAlign = flavorPos.align as CanvasTextAlign;
+      ctx.textBaseline = "top";
+
+      const lines = wrapText(ctx, card.flavor_text!, flavorPos.width);
+      const lineHeight = fontSize * 1.3;
+
+      lines.forEach((line, index) => {
+        ctx.fillText(line, flavorPos.x, flavorY + index * lineHeight);
+      });
+    }
   }
 
   // Draw power/toughness

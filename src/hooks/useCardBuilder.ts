@@ -9,6 +9,7 @@ export function useCardBuilder(
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [selectedBorderId, setSelectedBorderId] = useState<string | null>(null);
   const [selectedBackgroundIndex, setSelectedBackgroundIndex] = useState<number>(0);
+  const [dpi, setDpi] = useState<number>(300);
 
   const selectedCard = useMemo(
     () => cards.find(c => c.id === selectedCardId) || null,
@@ -67,8 +68,10 @@ export function useCardBuilder(
     selectedBorder,
     selectedBackground,
     availableBackgrounds,
+    dpi,
     selectCard,
     selectBorder,
     selectBackground,
+    setDpi,
   };
 }

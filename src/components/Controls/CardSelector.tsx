@@ -44,10 +44,10 @@ export function CardSelector({ cards, selectedCard, onSelect }: CardSelectorProp
   }, []);
 
   useEffect(() => {
-    if (selectedCard && !query) {
+    if (selectedCard) {
       setQuery(selectedCard.name);
     }
-  }, [selectedCard, query]);
+  }, [selectedCard]);
 
   return (
     <div className={styles.controlGroup}>

@@ -8,4 +8,18 @@ export default defineConfig({
       '@': '/src',
     },
   },
+  server: {
+    proxy: {
+      '/scryfall-images': {
+        target: 'https://cards.scryfall.io',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/scryfall-images/, ''),
+      },
+      '/scryfall-symbols': {
+        target: 'https://svgs.scryfall.io',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/scryfall-symbols/, ''),
+      },
+    },
+  },
 })

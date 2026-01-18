@@ -1,4 +1,4 @@
-import { useCards, useBorders, useBackgrounds } from './hooks';
+import { useCards, useBorders, useBackgrounds, useSymbols } from './hooks';
 import { CardBuilder } from './components/CardBuilder';
 import styles from './App.module.css';
 
@@ -6,9 +6,10 @@ function App() {
   const { cards, loading: cardsLoading, error: cardsError } = useCards();
   const { borders, loading: bordersLoading, error: bordersError } = useBorders();
   const { backgrounds, loading: backgroundsLoading, error: backgroundsError } = useBackgrounds();
+  const { symbols, loading: symbolsLoading, error: symbolsError } = useSymbols();
 
-  const loading = cardsLoading || bordersLoading || backgroundsLoading;
-  const error = cardsError || bordersError || backgroundsError;
+  const loading = cardsLoading || bordersLoading || backgroundsLoading || symbolsLoading;
+  const error = cardsError || bordersError || backgroundsError || symbolsError;
 
   if (loading) {
     return (
@@ -38,6 +39,7 @@ function App() {
         cards={cards}
         borders={borders}
         backgrounds={backgrounds}
+        symbols={symbols}
       />
     </div>
   );

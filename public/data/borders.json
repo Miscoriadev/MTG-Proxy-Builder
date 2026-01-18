@@ -19,17 +19,17 @@
           "y": 5.7,
           "width": 65,
           "height": 6,
-          "fontSize": 16,
+          "fontSize": 10,
           "fontFamily": "Beleren2016, Beleren, serif",
           "color": "#000000",
           "align": "left"
         },
         "manaCost": {
           "x": 70,
-          "y": 5.9,
+          "y": 5.7,
           "width": 22,
           "height": 6,
-          "fontSize": 14,
+          "fontSize": 8,
           "align": "right"
         },
         "typeLine": {
@@ -37,7 +37,7 @@
           "y": 57.6,
           "width": 84,
           "height": 5,
-          "fontSize": 13,
+          "fontSize": 9,
           "fontFamily": "Beleren2016, Beleren, serif",
           "color": "#000000",
           "align": "left"
@@ -47,7 +47,7 @@
           "y": 64,
           "width": 82,
           "height": 22,
-          "fontSize": 12,
+          "fontSize": 8,
           "fontFamily": "MPlantin, Georgia, serif",
           "color": "#000000",
           "align": "left"
@@ -57,7 +57,7 @@
           "y": 82,
           "width": 82,
           "height": 8,
-          "fontSize": 11,
+          "fontSize": 7,
           "fontFamily": "MPlantin, Georgia, serif",
           "color": "#000000",
           "align": "left"
@@ -67,7 +67,7 @@
           "y": 91,
           "width": 15,
           "height": 5,
-          "fontSize": 16,
+          "fontSize": 14,
           "fontFamily": "Beleren2016, Beleren, serif",
           "color": "#000000",
           "align": "center"
@@ -77,7 +77,7 @@
           "y": 91,
           "width": 12,
           "height": 5,
-          "fontSize": 18,
+          "fontSize": 16,
           "fontFamily": "Beleren2016, Beleren, serif",
           "color": "#FFFFFF",
           "align": "center"

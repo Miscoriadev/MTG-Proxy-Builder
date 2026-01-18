@@ -147,3 +147,37 @@
   text-align: center;
   padding: 1rem;
 }
+
+.dimensionInfo {
+  font-size: 0.75rem;
+  color: #6b7c93;
+  margin-top: 0.25rem;
+}
+
+.downloadButton {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: linear-gradient(135deg, #4a90d9 0%, #8b5cf6 100%);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.downloadButton:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.downloadButton:active {
+  transform: translateY(0);
+}
+
+.downloadButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}

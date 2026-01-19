@@ -1,7 +1,19 @@
-import { useRef, useEffect, useImperativeHandle, forwardRef, useState, useCallback } from 'react';
-import { ScryfallCard, BorderConfig, SymbolsData } from '../../types';
-import { renderCard, getCanvasDimensions, downloadPng, BackgroundTransform } from '../../utils/canvasRenderer';
-import styles from './CardPreview.module.css';
+import {
+  useRef,
+  useEffect,
+  useImperativeHandle,
+  forwardRef,
+  useState,
+  useCallback,
+} from "react";
+import { ScryfallCard, BorderConfig, SymbolsData } from "../../types";
+import {
+  renderCard,
+  getCanvasDimensions,
+  downloadPng,
+  BackgroundTransform,
+} from "../../utils/canvasRenderer";
+import styles from "./CardPreview.module.css";
 
 export interface CardCanvasHandle {
   download: () => void;
@@ -18,7 +30,18 @@ interface CardCanvasProps {
 }
 
 export const CardCanvas = forwardRef<CardCanvasHandle, CardCanvasProps>(
-  function CardCanvas({ card, border, backgroundUrl, backgroundTransform, onBackgroundTransformChange, dpi, symbolsData }, ref) {
+  function CardCanvas(
+    {
+      card,
+      border,
+      backgroundUrl,
+      backgroundTransform,
+      onBackgroundTransformChange,
+      dpi,
+      symbolsData,
+    },
+    ref,
+  ) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const renderLockRef = useRef<Promise<void>>(Promise.resolve());
     const renderIdRef = useRef(0);
@@ -32,7 +55,7 @@ export const CardCanvas = forwardRef<CardCanvasHandle, CardCanvasProps>(
     useImperativeHandle(ref, () => ({
       download: () => {
         if (canvasRef.current) {
-          const filename = card.name.replace(/[^a-zA-Z0-9]/g, '_');
+          const filename = card.name.replace(/[^a-zA-Z0-9]/g, "_");
           downloadPng(canvasRef.current, filename);
         }
       },
@@ -71,7 +94,7 @@ export const CardCanvas = forwardRef<CardCanvasHandle, CardCanvasProps>(
             symbolsData,
           });
         } catch (error) {
-          console.error('Failed to render card:', error);
+          console.error("Failed to render card:", error);
         } finally {
           resolveRender!();
         }
@@ -85,49 +108,63 @@ export const CardCanvas = forwardRef<CardCanvasHandle, CardCanvasProps>(
     const displayHeight = 504; // 3.5 inches at 144 DPI
 
     // Mouse wheel for scaling (Shift+scroll)
-    const handleWheel = useCallback((e: React.WheelEvent) => {
-      if (!e.shiftKey || !onBackgroundTransformChange || !backgroundTransform) return;
-      e.preventDefault();
+    const handleWheel = useCallback(
+      (e: React.WheelEvent) => {
+        if (!e.shiftKey || !onBackgroundTransformChange || !backgroundTransform)
+          return;
+        e.preventDefault();
 
-      const scaleDelta = e.deltaY > 0 ? 0.95 : 1.05;
-      const newScale = Math.max(0.5, Math.min(3, backgroundTransform.scale * scaleDelta));
+        const scaleDelta = e.deltaY > 0 ? 0.95 : 1.05;
+        const newScale = Math.max(
+          0.1,
+          Math.min(10, backgroundTransform.scale * scaleDelta),
+        );
 
-      onBackgroundTransformChange({
-        ...backgroundTransform,
-        scale: newScale,
-      });
-    }, [backgroundTransform, onBackgroundTransformChange]);
+        onBackgroundTransformChange({
+          ...backgroundTransform,
+          scale: newScale,
+        });
+      },
+      [backgroundTransform, onBackgroundTransformChange],
+    );
 
     // Mouse down to start drag
-    const handleMouseDown = useCallback((e: React.MouseEvent) => {
-      if (!onBackgroundTransformChange) return;
-      setIsDragging(true);
-      dragStartRef.current = { x: e.clientX, y: e.clientY };
-    }, [onBackgroundTransformChange]);
+    const handleMouseDown = useCallback(
+      (e: React.MouseEvent) => {
+        if (!onBackgroundTransformChange) return;
+        setIsDragging(true);
+        dragStartRef.current = { x: e.clientX, y: e.clientY };
+      },
+      [onBackgroundTransformChange],
+    );
 
     // Mouse move for dragging
-    const handleMouseMove = useCallback((e: React.MouseEvent) => {
-      if (!isDragging || !onBackgroundTransformChange || !backgroundTransform) return;
+    const handleMouseMove = useCallback(
+      (e: React.MouseEvent) => {
+        if (!isDragging || !onBackgroundTransformChange || !backgroundTransform)
+          return;
 
-      const canvas = canvasRef.current;
-      if (!canvas) return;
+        const canvas = canvasRef.current;
+        if (!canvas) return;
 
-      // Calculate scale factor between display size and canvas size
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
+        // Calculate scale factor between display size and canvas size
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
 
-      const deltaX = (e.clientX - dragStartRef.current.x) * scaleX;
-      const deltaY = (e.clientY - dragStartRef.current.y) * scaleY;
+        const deltaX = (e.clientX - dragStartRef.current.x) * scaleX;
+        const deltaY = (e.clientY - dragStartRef.current.y) * scaleY;
 
-      onBackgroundTransformChange({
-        ...backgroundTransform,
-        offsetX: backgroundTransform.offsetX + deltaX,
-        offsetY: backgroundTransform.offsetY + deltaY,
-      });
+        onBackgroundTransformChange({
+          ...backgroundTransform,
+          offsetX: backgroundTransform.offsetX + deltaX,
+          offsetY: backgroundTransform.offsetY + deltaY,
+        });
 
-      dragStartRef.current = { x: e.clientX, y: e.clientY };
-    }, [isDragging, backgroundTransform, onBackgroundTransformChange]);
+        dragStartRef.current = { x: e.clientX, y: e.clientY };
+      },
+      [isDragging, backgroundTransform, onBackgroundTransformChange],
+    );
 
     // Mouse up to stop drag
     const handleMouseUp = useCallback(() => {
@@ -148,9 +185,13 @@ export const CardCanvas = forwardRef<CardCanvasHandle, CardCanvasProps>(
         style={{
           width: displayWidth,
           height: displayHeight,
-          cursor: onBackgroundTransformChange ? (isDragging ? 'grabbing' : 'grab') : 'default',
+          cursor: onBackgroundTransformChange
+            ? isDragging
+              ? "grabbing"
+              : "grab"
+            : "default",
         }}
       />
     );
-  }
+  },
 );

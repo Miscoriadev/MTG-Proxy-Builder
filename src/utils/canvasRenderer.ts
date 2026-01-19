@@ -28,6 +28,9 @@ const MANA_COLORS: Record<
 // Cache for loaded symbol images
 const symbolImageCache: Map<string, HTMLImageElement> = new Map();
 
+// Cache for general images (backgrounds, borders, overlays)
+const imageCache: Map<string, HTMLImageElement> = new Map();
+
 // Cache for loaded fonts
 const loadedFonts: Set<string> = new Set();
 
@@ -82,6 +85,17 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
     img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
     img.src = url;
   });
+}
+
+// Load image with caching - returns cached image if available
+async function loadImageCached(url: string): Promise<HTMLImageElement> {
+  if (imageCache.has(url)) {
+    return imageCache.get(url)!;
+  }
+
+  const img = await loadImage(url);
+  imageCache.set(url, img);
+  return img;
 }
 
 function getSymbolUrl(
@@ -628,12 +642,25 @@ export async function renderCard(
   const scaleFactor = dpi / BASE_DPI;
   const borderManaSymbols = border.manaSymbols;
 
-  canvas.width = width;
-  canvas.height = height;
+  // Only update canvas dimensions if they changed (setting dimensions clears the canvas)
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width;
+    canvas.height = height;
+  }
 
-  const ctx = canvas.getContext("2d");
+  // Create offscreen canvas for double buffering to prevent flicker
+  const offscreenCanvas = document.createElement("canvas");
+  offscreenCanvas.width = width;
+  offscreenCanvas.height = height;
+
+  const ctx = offscreenCanvas.getContext("2d");
   if (!ctx) {
     throw new Error("Failed to get canvas context");
+  }
+
+  const visibleCtx = canvas.getContext("2d");
+  if (!visibleCtx) {
+    throw new Error("Failed to get visible canvas context");
   }
 
   // Collect all font families used in this border config and ensure they're loaded
@@ -678,7 +705,7 @@ export async function renderCard(
   // Load and draw background
   if (backgroundUrl) {
     try {
-      const bgImage = await loadImage(proxyImageUrl(backgroundUrl));
+      const bgImage = await loadImageCached(proxyImageUrl(backgroundUrl));
       drawImageCover(ctx, bgImage, width, height, backgroundTransform);
     } catch (e) {
       console.warn("Failed to load background image:", e);
@@ -690,7 +717,7 @@ export async function renderCard(
   const borderImageUrl = border.images[borderColor] || border.images.C;
 
   try {
-    const borderImage = await loadImage(proxyImageUrl(borderImageUrl));
+    const borderImage = await loadImageCached(proxyImageUrl(borderImageUrl));
     ctx.drawImage(borderImage, 0, 0, width, height);
   } catch (e) {
     console.warn("Failed to load border image:", e);
@@ -703,7 +730,7 @@ export async function renderCard(
 
     if (legendaryUrl) {
       try {
-        const legendaryImage = await loadImage(proxyImageUrl(legendaryUrl));
+        const legendaryImage = await loadImageCached(proxyImageUrl(legendaryUrl));
         ctx.drawImage(legendaryImage, 0, 0, width, height);
       } catch (e) {
         console.warn("Failed to load legendary overlay:", e);
@@ -941,6 +968,9 @@ export async function renderCard(
       loyaltyPos.y,
     );
   }
+
+  // Copy completed offscreen canvas to visible canvas in one operation (double buffering)
+  visibleCtx.drawImage(offscreenCanvas, 0, 0);
 }
 
 export function downloadPng(canvas: HTMLCanvasElement, filename: string): void {

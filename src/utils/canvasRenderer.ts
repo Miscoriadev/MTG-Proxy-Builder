@@ -524,6 +524,31 @@ function measureFlavorText(
   return lines.length * lineHeight;
 }
 
+// Finds the optimal font size for single-line text to fit within maxWidth
+function fitTextToWidth(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+  baseFontSize: number,
+  fontFamily: string,
+  minFontSize: number = baseFontSize * 0.5,
+): number {
+  let fontSize = baseFontSize;
+
+  while (fontSize > minFontSize) {
+    ctx.font = `${fontSize}px ${fontFamily}`;
+    const textWidth = ctx.measureText(text).width;
+
+    if (textWidth <= maxWidth) {
+      return fontSize;
+    }
+
+    fontSize -= 0.5;
+  }
+
+  return minFontSize;
+}
+
 async function drawManaCost(
   ctx: CanvasRenderingContext2D,
   cost: string,
@@ -664,7 +689,7 @@ export async function renderCard(
     }
   }
 
-  // Draw card name
+  // Draw card name with dynamic font sizing
   const namePos = getScaledPosition(
     border.textPositions.name,
     width,
@@ -676,11 +701,20 @@ export async function renderCard(
   ctx.shadowBlur = 0;
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
-  ctx.font = `${namePos.fontSize}px ${namePos.fontFamily}`;
+  const nameFontSize = fitTextToWidth(
+    ctx,
+    card.name,
+    namePos.width,
+    namePos.fontSize,
+    namePos.fontFamily,
+  );
+  // Center text vertically when font is scaled down
+  const nameYOffset = (namePos.fontSize - nameFontSize) / 2;
+  ctx.font = `${nameFontSize}px ${namePos.fontFamily}`;
   ctx.fillStyle = namePos.color;
   ctx.textAlign = namePos.align as CanvasTextAlign;
   ctx.textBaseline = "top";
-  ctx.fillText(card.name, namePos.x, namePos.y);
+  ctx.fillText(card.name, namePos.x, namePos.y + nameYOffset);
 
   // Draw mana cost
   if (card.mana_cost) {
@@ -702,7 +736,7 @@ export async function renderCard(
     );
   }
 
-  // Draw type line
+  // Draw type line with dynamic font sizing
   const typePos = getScaledPosition(
     border.textPositions.typeLine,
     width,
@@ -714,11 +748,20 @@ export async function renderCard(
   ctx.shadowBlur = 0;
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
-  ctx.font = `${typePos.fontSize}px ${typePos.fontFamily}`;
+  const typeFontSize = fitTextToWidth(
+    ctx,
+    card.type_line,
+    typePos.width,
+    typePos.fontSize,
+    typePos.fontFamily,
+  );
+  // Center text vertically when font is scaled down
+  const typeYOffset = (typePos.fontSize - typeFontSize) / 2;
+  ctx.font = `${typeFontSize}px ${typePos.fontFamily}`;
   ctx.fillStyle = typePos.color;
   ctx.textAlign = typePos.align as CanvasTextAlign;
   ctx.textBaseline = "top";
-  ctx.fillText(card.type_line, typePos.x, typePos.y);
+  ctx.fillText(card.type_line, typePos.x, typePos.y + typeYOffset);
 
   // Draw oracle text and flavor text with dynamic font sizing
   let oracleEndY = 0;

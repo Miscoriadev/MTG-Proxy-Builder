@@ -49,10 +49,17 @@ async function ensureFontLoaded(fontFamily: string): Promise<void> {
   }
 }
 
+export interface BackgroundTransform {
+  scale: number;
+  offsetX: number;
+  offsetY: number;
+}
+
 export interface RenderOptions {
   card: ScryfallCard;
   border: BorderConfig;
   backgroundUrl: string | null;
+  backgroundTransform?: BackgroundTransform;
   dpi: number;
   symbolsData?: SymbolsData;
 }
@@ -126,26 +133,41 @@ function drawImageCover(
   img: HTMLImageElement,
   width: number,
   height: number,
+  transform?: BackgroundTransform,
 ) {
+  const scale = transform?.scale ?? 1;
+  const userOffsetX = transform?.offsetX ?? 0;
+  const userOffsetY = transform?.offsetY ?? 0;
+
   const imgRatio = img.width / img.height;
   const canvasRatio = width / height;
 
-  let drawWidth: number;
-  let drawHeight: number;
-  let offsetX = 0;
-  let offsetY = 0;
+  let baseDrawWidth: number;
+  let baseDrawHeight: number;
+  let baseOffsetX = 0;
+  let baseOffsetY = 0;
 
   if (imgRatio > canvasRatio) {
-    drawHeight = height;
-    drawWidth = img.width * (height / img.height);
-    offsetX = (width - drawWidth) / 2;
+    baseDrawHeight = height;
+    baseDrawWidth = img.width * (height / img.height);
+    baseOffsetX = (width - baseDrawWidth) / 2;
   } else {
-    drawWidth = width;
-    drawHeight = img.height * (width / img.width);
-    offsetY = (height - drawHeight) / 2;
+    baseDrawWidth = width;
+    baseDrawHeight = img.height * (width / img.width);
+    baseOffsetY = (height - baseDrawHeight) / 2;
   }
 
-  ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+  // Apply user scale (centered scaling)
+  const scaledWidth = baseDrawWidth * scale;
+  const scaledHeight = baseDrawHeight * scale;
+  const scaleOffsetX = (baseDrawWidth - scaledWidth) / 2;
+  const scaleOffsetY = (baseDrawHeight - scaledHeight) / 2;
+
+  // Final position with user offset
+  const finalX = baseOffsetX + scaleOffsetX + userOffsetX;
+  const finalY = baseOffsetY + scaleOffsetY + userOffsetY;
+
+  ctx.drawImage(img, finalX, finalY, scaledWidth, scaledHeight);
 }
 
 function getScaledPosition(
@@ -601,7 +623,7 @@ export async function renderCard(
   canvas: HTMLCanvasElement,
   options: RenderOptions,
 ): Promise<void> {
-  const { card, border, backgroundUrl, dpi, symbolsData } = options;
+  const { card, border, backgroundUrl, backgroundTransform, dpi, symbolsData } = options;
   const { width, height } = getCanvasDimensions(dpi);
   const scaleFactor = dpi / BASE_DPI;
   const borderManaSymbols = border.manaSymbols;
@@ -657,7 +679,7 @@ export async function renderCard(
   if (backgroundUrl) {
     try {
       const bgImage = await loadImage(proxyImageUrl(backgroundUrl));
-      drawImageCover(ctx, bgImage, width, height);
+      drawImageCover(ctx, bgImage, width, height, backgroundTransform);
     } catch (e) {
       console.warn("Failed to load background image:", e);
     }

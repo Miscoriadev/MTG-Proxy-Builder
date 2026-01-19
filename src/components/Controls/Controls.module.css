@@ -208,3 +208,9 @@
     transform: rotate(360deg);
   }
 }
+
+.hint {
+  font-size: 0.75rem;
+  color: #6b7c93;
+  margin-top: 0.5rem;
+}

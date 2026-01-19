@@ -1,5 +1,11 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { ScryfallCard, BorderConfig, BackgroundImage, BackgroundsData } from '../types';
+
+export interface BackgroundTransform {
+  scale: number;
+  offsetX: number;
+  offsetY: number;
+}
 
 export function useCardBuilder(
   borders: BorderConfig[],
@@ -9,6 +15,16 @@ export function useCardBuilder(
   const [selectedBorderId, setSelectedBorderId] = useState<string | null>(null);
   const [selectedBackgroundIndex, setSelectedBackgroundIndex] = useState<number>(0);
   const [dpi, setDpi] = useState<number>(300);
+  const [backgroundTransform, setBackgroundTransform] = useState<BackgroundTransform>({
+    scale: 1,
+    offsetX: 0,
+    offsetY: 0,
+  });
+
+  // Reset transform when background changes
+  useEffect(() => {
+    setBackgroundTransform({ scale: 1, offsetX: 0, offsetY: 0 });
+  }, [selectedBackgroundIndex]);
 
   const selectedBorder = useMemo(
     () => borders.find(b => b.id === selectedBorderId) || borders[0] || null,
@@ -62,10 +78,12 @@ export function useCardBuilder(
     selectedBorder,
     selectedBackground,
     availableBackgrounds,
+    backgroundTransform,
     dpi,
     selectCard,
     selectBorder,
     selectBackground,
+    setBackgroundTransform,
     setDpi,
   };
 }

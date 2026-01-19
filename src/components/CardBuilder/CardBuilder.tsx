@@ -20,10 +20,12 @@ export function CardBuilder({ borders, backgrounds, symbols }: CardBuilderProps)
     selectedBorder,
     selectedBackground,
     availableBackgrounds,
+    backgroundTransform,
     dpi,
     selectCard,
     selectBorder,
     selectBackground,
+    setBackgroundTransform,
     setDpi,
   } = useCardBuilder(borders, backgrounds);
 
@@ -39,6 +41,8 @@ export function CardBuilder({ borders, backgrounds, symbols }: CardBuilderProps)
           card={selectedCard}
           border={selectedBorder}
           background={selectedBackground}
+          backgroundTransform={backgroundTransform}
+          onBackgroundTransformChange={setBackgroundTransform}
           dpi={dpi}
           symbolsData={symbols}
         />

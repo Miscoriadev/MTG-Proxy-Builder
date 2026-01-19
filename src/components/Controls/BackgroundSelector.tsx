@@ -39,6 +39,9 @@ export function BackgroundSelector({ backgrounds, selectedBackground, onSelect }
           </div>
         ))}
       </div>
+      <div className={styles.hint}>
+        Drag to pan • Shift+scroll to zoom
+      </div>
     </div>
   );
 }

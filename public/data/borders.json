@@ -14,6 +14,11 @@
         "M": "/borders/classic/gold.png",
         "M-Legendary": "/borders/classic/legendary_frame.png"
       },
+      "art": {
+        "centerX": 50,
+        "centerY": 33,
+        "scale": 0.95
+      },
       "textPositions": {
         "name": {
           "x": 8.5,

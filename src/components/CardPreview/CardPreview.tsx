@@ -1,18 +1,21 @@
 import { forwardRef } from 'react';
 import { ScryfallCard, BorderConfig, BackgroundImage, SymbolsData } from '../../types';
 import { CardCanvas, CardCanvasHandle } from './CardCanvas';
+import { BackgroundTransform } from '../../utils/canvasRenderer';
 import styles from './CardPreview.module.css';
 
 interface CardPreviewProps {
   card: ScryfallCard | null;
   border: BorderConfig | null;
   background: BackgroundImage | null;
+  backgroundTransform?: BackgroundTransform;
+  onBackgroundTransformChange?: (transform: BackgroundTransform) => void;
   dpi: number;
   symbolsData?: SymbolsData;
 }
 
 export const CardPreview = forwardRef<CardCanvasHandle, CardPreviewProps>(
-  function CardPreview({ card, border, background, dpi, symbolsData }, ref) {
+  function CardPreview({ card, border, background, backgroundTransform, onBackgroundTransformChange, dpi, symbolsData }, ref) {
     if (!card || !border) {
       return (
         <div className={styles.cardContainer}>
@@ -33,6 +36,8 @@ export const CardPreview = forwardRef<CardCanvasHandle, CardPreviewProps>(
             card={card}
             border={border}
             backgroundUrl={backgroundUrl}
+            backgroundTransform={backgroundTransform}
+            onBackgroundTransformChange={onBackgroundTransformChange}
             dpi={dpi}
             symbolsData={symbolsData}
           />

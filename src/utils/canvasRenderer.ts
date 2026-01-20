@@ -885,13 +885,26 @@ export async function renderCard(
       fontSize -= fontStep;
     }
 
+    // Calculate vertical alignment offset
+    const totalContentHeight = calculateTotalHeight(fontSize);
+    const verticalAlign = border.textPositions.oracleText.verticalAlign || "top";
+    let verticalOffset = 0;
+    if (verticalAlign === "center") {
+      verticalOffset = (availableHeight - totalContentHeight) / 2;
+    } else if (verticalAlign === "bottom") {
+      verticalOffset = availableHeight - totalContentHeight;
+    }
+
+    // Starting Y position with vertical alignment applied
+    const startY = oraclePos.y + verticalOffset;
+
     // Draw oracle text with calculated font size
     if (hasOracleText) {
       const oracleHeight = await drawTextWithManaSymbols(
         ctx,
         card.oracle_text!,
         oraclePos.x,
-        oraclePos.y,
+        startY,
         oraclePos.width,
         fontSize,
         oraclePos.fontFamily,
@@ -899,7 +912,7 @@ export async function renderCard(
         borderManaSymbols,
         symbolsData,
       );
-      oracleEndY = oraclePos.y + oracleHeight;
+      oracleEndY = startY + oracleHeight;
     }
 
     // Draw flavor text below oracle text with divider
@@ -907,7 +920,7 @@ export async function renderCard(
       const gapSize = fontSize * 1.5; // Total gap between oracle and flavor text
 
       // Calculate Y position based on oracle text end (or use default if no oracle text)
-      const flavorY = hasOracleText ? oracleEndY + gapSize : oraclePos.y;
+      const flavorY = hasOracleText ? oracleEndY + gapSize : startY;
 
       // Draw divider line centered between oracle and flavor text with faded ends
       if (hasOracleText) {

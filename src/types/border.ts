@@ -7,6 +7,7 @@ export interface TextPosition {
   fontFamily?: string;
   color?: string;
   align?: 'left' | 'center' | 'right';
+  verticalAlign?: 'top' | 'center' | 'bottom';
 }
 
 export interface BorderTextPositions {

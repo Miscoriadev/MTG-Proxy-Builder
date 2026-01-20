@@ -147,13 +147,10 @@ export const CardCanvas = forwardRef<CardCanvasHandle, CardCanvasProps>(
         const canvas = canvasRef.current;
         if (!canvas) return;
 
-        // Calculate scale factor between display size and canvas size
+        // Calculate delta as percentage of canvas dimensions
         const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
-
-        const deltaX = (e.clientX - dragStartRef.current.x) * scaleX;
-        const deltaY = (e.clientY - dragStartRef.current.y) * scaleY;
+        const deltaX = ((e.clientX - dragStartRef.current.x) / rect.width) * 100;
+        const deltaY = ((e.clientY - dragStartRef.current.y) / rect.height) * 100;
 
         onBackgroundTransformChange({
           ...backgroundTransform,

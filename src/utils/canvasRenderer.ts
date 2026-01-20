@@ -55,8 +55,8 @@ async function ensureFontLoaded(fontFamily: string): Promise<void> {
 
 export interface BackgroundTransform {
   scale: number;
-  offsetX: number;
-  offsetY: number;
+  offsetX: number; // Percentage of canvas width (0-100)
+  offsetY: number; // Percentage of canvas height (0-100)
 }
 
 export interface RenderOptions {
@@ -156,10 +156,10 @@ function drawImageCover(
   const centerY = artPosition?.centerY ?? 50;
   const baseScale = artPosition?.scale ?? 1;
 
-  // User transform adjustments
+  // User transform adjustments (offsets are percentages)
   const userScale = transform?.scale ?? 1;
-  const userOffsetX = transform?.offsetX ?? 0;
-  const userOffsetY = transform?.offsetY ?? 0;
+  const userOffsetX = ((transform?.offsetX ?? 0) / 100) * width;
+  const userOffsetY = ((transform?.offsetY ?? 0) / 100) * height;
 
   // Scale 1 = image width fits card width
   const baseDrawWidth = width * baseScale * userScale;
@@ -909,13 +909,27 @@ export async function renderCard(
       // Calculate Y position based on oracle text end (or use default if no oracle text)
       const flavorY = hasOracleText ? oracleEndY + gapSize : oraclePos.y;
 
-      // Draw divider line centered between oracle and flavor text
+      // Draw divider line centered between oracle and flavor text with faded ends
       if (hasOracleText) {
         const dividerY = oracleEndY + gapSize / 2;
+        const fadeWidth = oraclePos.width * 0.15; // Fade out over 15% of width at each end
+
+        // Create gradient that fades at both ends
+        const gradient = ctx.createLinearGradient(
+          oraclePos.x,
+          dividerY,
+          oraclePos.x + oraclePos.width,
+          dividerY,
+        );
+        gradient.addColorStop(0, "rgba(0, 0, 0, 0)");
+        gradient.addColorStop(fadeWidth / oraclePos.width, "rgba(0, 0, 0, 0.3)");
+        gradient.addColorStop(1 - fadeWidth / oraclePos.width, "rgba(0, 0, 0, 0.3)");
+        gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+
         ctx.beginPath();
         ctx.moveTo(oraclePos.x, dividerY);
         ctx.lineTo(oraclePos.x + oraclePos.width, dividerY);
-        ctx.strokeStyle = "rgba(0, 0, 0, 0.3)";
+        ctx.strokeStyle = gradient;
         ctx.lineWidth = 1 * scaleFactor;
         ctx.stroke();
       }

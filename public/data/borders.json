@@ -17,7 +17,8 @@
       "art": {
         "centerX": 50,
         "centerY": 33,
-        "scale": 0.95
+        "scale": 0.9,
+        "requiresFullArt": false
       },
       "textPositions": {
         "name": {
@@ -59,11 +60,6 @@
           "align": "left"
         },
         "flavorText": {
-          "x": 9,
-          "y": 82,
-          "width": 82,
-          "height": 8,
-          "fontSize": 7,
           "fontFamily": "MPlantin, Georgia, serif",
           "color": "#000000",
           "align": "left"
@@ -108,10 +104,6 @@
         "9": "/symbols/9.svg",
         "10": "/symbols/10.svg",
         "X": "/symbols/X.svg"
-      },
-      "cardDimensions": {
-        "width": 336,
-        "height": 469
       }
     }
   ]

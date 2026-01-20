@@ -3,6 +3,7 @@ import {
   BorderConfig,
   TextPosition,
   SymbolsData,
+  ArtPosition,
 } from "../types";
 import { parseManaString, parseOracleText } from "./manaParser";
 import { determineBorderColor } from "./colorUtils";
@@ -147,41 +148,31 @@ function drawImageCover(
   img: HTMLImageElement,
   width: number,
   height: number,
+  artPosition?: ArtPosition,
   transform?: BackgroundTransform,
 ) {
-  const scale = transform?.scale ?? 1;
+  // Default art position: centered, scale 1 = fit to width
+  const centerX = artPosition?.centerX ?? 50;
+  const centerY = artPosition?.centerY ?? 50;
+  const baseScale = artPosition?.scale ?? 1;
+
+  // User transform adjustments
+  const userScale = transform?.scale ?? 1;
   const userOffsetX = transform?.offsetX ?? 0;
   const userOffsetY = transform?.offsetY ?? 0;
 
-  const imgRatio = img.width / img.height;
-  const canvasRatio = width / height;
+  // Scale 1 = image width fits card width
+  const baseDrawWidth = width * baseScale * userScale;
+  const baseDrawHeight = (img.height / img.width) * baseDrawWidth;
 
-  let baseDrawWidth: number;
-  let baseDrawHeight: number;
-  let baseOffsetX = 0;
-  let baseOffsetY = 0;
+  // Position image so its center aligns with the specified center point
+  const targetCenterX = (centerX / 100) * width;
+  const targetCenterY = (centerY / 100) * height;
 
-  if (imgRatio > canvasRatio) {
-    baseDrawHeight = height;
-    baseDrawWidth = img.width * (height / img.height);
-    baseOffsetX = (width - baseDrawWidth) / 2;
-  } else {
-    baseDrawWidth = width;
-    baseDrawHeight = img.height * (width / img.width);
-    baseOffsetY = (height - baseDrawHeight) / 2;
-  }
+  const finalX = targetCenterX - baseDrawWidth / 2 + userOffsetX;
+  const finalY = targetCenterY - baseDrawHeight / 2 + userOffsetY;
 
-  // Apply user scale (centered scaling)
-  const scaledWidth = baseDrawWidth * scale;
-  const scaledHeight = baseDrawHeight * scale;
-  const scaleOffsetX = (baseDrawWidth - scaledWidth) / 2;
-  const scaleOffsetY = (baseDrawHeight - scaledHeight) / 2;
-
-  // Final position with user offset
-  const finalX = baseOffsetX + scaleOffsetX + userOffsetX;
-  const finalY = baseOffsetY + scaleOffsetY + userOffsetY;
-
-  ctx.drawImage(img, finalX, finalY, scaledWidth, scaledHeight);
+  ctx.drawImage(img, finalX, finalY, baseDrawWidth, baseDrawHeight);
 }
 
 function getScaledPosition(
@@ -516,7 +507,8 @@ function measureTextWithManaSymbols(
           } else {
             if (
               wordBuffer === "" ||
-              (inParentheses === wordIsItalic && isInAbilityWord === wordIsItalic)
+              (inParentheses === wordIsItalic &&
+                isInAbilityWord === wordIsItalic)
             ) {
               wordIsItalic = inParentheses || isInAbilityWord;
               wordBuffer += char;
@@ -592,12 +584,13 @@ async function drawManaCost(
   y: number,
   maxWidth: number,
   fontSize: number,
+  scaleFactor: number,
   borderManaSymbols: Record<string, string> | undefined,
   symbolsData: SymbolsData | undefined,
 ): Promise<void> {
   const symbols = parseManaString(cost);
   const symbolSize = fontSize * 1.2;
-  const spacing = 5;
+  const spacing = 1.7 * scaleFactor;
   const totalWidth = symbols.length * (symbolSize + spacing) - spacing;
 
   // Right-align the mana cost
@@ -637,7 +630,8 @@ export async function renderCard(
   canvas: HTMLCanvasElement,
   options: RenderOptions,
 ): Promise<void> {
-  const { card, border, backgroundUrl, backgroundTransform, dpi, symbolsData } = options;
+  const { card, border, backgroundUrl, backgroundTransform, dpi, symbolsData } =
+    options;
   const { width, height } = getCanvasDimensions(dpi);
   const scaleFactor = dpi / BASE_DPI;
   const borderManaSymbols = border.manaSymbols;
@@ -706,7 +700,14 @@ export async function renderCard(
   if (backgroundUrl) {
     try {
       const bgImage = await loadImageCached(proxyImageUrl(backgroundUrl));
-      drawImageCover(ctx, bgImage, width, height, backgroundTransform);
+      drawImageCover(
+        ctx,
+        bgImage,
+        width,
+        height,
+        border.art,
+        backgroundTransform,
+      );
     } catch (e) {
       console.warn("Failed to load background image:", e);
     }
@@ -730,7 +731,9 @@ export async function renderCard(
 
     if (legendaryUrl) {
       try {
-        const legendaryImage = await loadImageCached(proxyImageUrl(legendaryUrl));
+        const legendaryImage = await loadImageCached(
+          proxyImageUrl(legendaryUrl),
+        );
         ctx.drawImage(legendaryImage, 0, 0, width, height);
       } catch (e) {
         console.warn("Failed to load legendary overlay:", e);
@@ -780,6 +783,7 @@ export async function renderCard(
       manaPos.y,
       manaPos.width,
       manaPos.fontSize,
+      scaleFactor,
       borderManaSymbols,
       symbolsData,
     );
@@ -862,7 +866,7 @@ export async function renderCard(
         totalHeight += measureFlavorText(
           ctx,
           card.flavor_text!,
-          flavorPos.width,
+          oraclePos.width,
           fontSize,
           flavorPos.fontFamily,
         );
@@ -903,14 +907,14 @@ export async function renderCard(
       const gapSize = fontSize * 1.5; // Total gap between oracle and flavor text
 
       // Calculate Y position based on oracle text end (or use default if no oracle text)
-      const flavorY = hasOracleText ? oracleEndY + gapSize : flavorPos.y;
+      const flavorY = hasOracleText ? oracleEndY + gapSize : oraclePos.y;
 
       // Draw divider line centered between oracle and flavor text
       if (hasOracleText) {
         const dividerY = oracleEndY + gapSize / 2;
         ctx.beginPath();
-        ctx.moveTo(flavorPos.x, dividerY);
-        ctx.lineTo(flavorPos.x + flavorPos.width, dividerY);
+        ctx.moveTo(oraclePos.x, dividerY);
+        ctx.lineTo(oraclePos.x + oraclePos.width, dividerY);
         ctx.strokeStyle = "rgba(0, 0, 0, 0.3)";
         ctx.lineWidth = 1 * scaleFactor;
         ctx.stroke();
@@ -922,11 +926,11 @@ export async function renderCard(
       ctx.textAlign = flavorPos.align as CanvasTextAlign;
       ctx.textBaseline = "top";
 
-      const lines = wrapText(ctx, card.flavor_text!, flavorPos.width);
+      const lines = wrapText(ctx, card.flavor_text!, oraclePos.width);
       const lineHeight = fontSize * 1.3;
 
       lines.forEach((line, index) => {
-        ctx.fillText(line, flavorPos.x, flavorY + index * lineHeight);
+        ctx.fillText(line, oraclePos.x, flavorY + index * lineHeight);
       });
     }
   }

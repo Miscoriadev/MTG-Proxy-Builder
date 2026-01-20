@@ -41,6 +41,12 @@ export interface ManaSymbolPaths {
   [key: string]: string;
 }
 
+export interface ArtPosition {
+  centerX: number; // Percentage (0-100) of card width for art center
+  centerY: number; // Percentage (0-100) of card height for art center
+  scale: number;   // 1 = fit to card width
+}
+
 export interface BorderConfig {
   id: string;
   name: string;
@@ -48,10 +54,7 @@ export interface BorderConfig {
   images: BorderColorImages;
   textPositions: BorderTextPositions;
   manaSymbols: ManaSymbolPaths;
-  cardDimensions: {
-    width: number;
-    height: number;
-  };
+  art?: ArtPosition;
 }
 
 export interface BordersData {

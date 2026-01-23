@@ -20,15 +20,23 @@ export interface BorderTextPositions {
   manaCost: TextPosition;
 }
 
+export interface BorderImageVariants {
+  base: string;
+  legendary?: string;
+  powerToughness?: string;
+}
+
+export type BorderImageValue = string | BorderImageVariants;
+
 export interface BorderColorImages {
-  W: string;
-  U: string;
-  B: string;
-  R: string;
-  G: string;
-  C: string;
-  M?: string;
-  [key: string]: string | undefined;
+  W: BorderImageValue;
+  U: BorderImageValue;
+  B: BorderImageValue;
+  R: BorderImageValue;
+  G: BorderImageValue;
+  C: BorderImageValue;
+  M?: BorderImageValue;
+  [key: string]: BorderImageValue | undefined;
 }
 
 export interface ManaSymbolPaths {

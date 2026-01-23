@@ -4,6 +4,7 @@ import {
   TextPosition,
   SymbolsData,
   ArtPosition,
+  BorderImageValue,
 } from "../types";
 import { parseManaString, parseOracleText } from "./manaParser";
 import { determineBorderColor } from "./colorUtils";
@@ -34,6 +35,16 @@ const imageCache: Map<string, HTMLImageElement> = new Map();
 
 // Cache for loaded fonts
 const loadedFonts: Set<string> = new Set();
+
+// Helper to get image URL from BorderImageValue (supports both string and object formats)
+function getBorderImageUrl(
+  value: BorderImageValue | undefined,
+  variant: "base" | "legendary" | "powerToughness" = "base",
+): string | undefined {
+  if (!value) return undefined;
+  if (typeof value === "string") return value;
+  return value[variant] ?? value.base;
+}
 
 async function ensureFontLoaded(fontFamily: string): Promise<void> {
   // Extract the first font name from the font family string
@@ -715,19 +726,22 @@ export async function renderCard(
 
   // Load and draw border
   const borderColor = determineBorderColor(card.colors);
-  const borderImageUrl = border.images[borderColor] || border.images.C;
+  const isLegendary = card.frame_effects?.includes("legendary");
+  const borderImageValue = border.images[borderColor] || border.images.C;
+  const borderImageUrl = getBorderImageUrl(borderImageValue, "base");
 
-  try {
-    const borderImage = await loadImageCached(proxyImageUrl(borderImageUrl));
-    ctx.drawImage(borderImage, 0, 0, width, height);
-  } catch (e) {
-    console.warn("Failed to load border image:", e);
+  if (borderImageUrl) {
+    try {
+      const borderImage = await loadImageCached(proxyImageUrl(borderImageUrl));
+      ctx.drawImage(borderImage, 0, 0, width, height);
+    } catch (e) {
+      console.warn("Failed to load border image:", e);
+    }
   }
 
   // Draw legendary overlay if card has legendary frame effect
-  if (card.frame_effects?.includes("legendary")) {
-    const legendaryKey = `${borderColor}-Legendary`;
-    const legendaryUrl = border.images[legendaryKey];
+  if (isLegendary) {
+    const legendaryUrl = getBorderImageUrl(borderImageValue, "legendary");
 
     if (legendaryUrl) {
       try {

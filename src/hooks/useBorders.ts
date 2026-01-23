@@ -9,7 +9,7 @@ export function useBorders() {
   useEffect(() => {
     async function loadBorders() {
       try {
-        const response = await fetch('/data/borders.json');
+        const response = await fetch(`${import.meta.env.BASE_URL}data/borders.json`);
         if (!response.ok) {
           throw new Error('Failed to load border data');
         }

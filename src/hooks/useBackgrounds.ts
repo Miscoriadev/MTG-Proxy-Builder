@@ -9,7 +9,7 @@ export function useBackgrounds() {
   useEffect(() => {
     async function loadBackgrounds() {
       try {
-        const response = await fetch('/data/backgrounds.json');
+        const response = await fetch(`${import.meta.env.BASE_URL}data/backgrounds.json`);
         if (!response.ok) {
           throw new Error('Failed to load background data');
         }

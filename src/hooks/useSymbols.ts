@@ -7,7 +7,7 @@ export function useSymbols() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    fetch('/data/symbols.json')
+    fetch(`${import.meta.env.BASE_URL}data/symbols.json`)
       .then(res => res.json())
       .then((data: SymbolsData) => {
         setSymbols(data);

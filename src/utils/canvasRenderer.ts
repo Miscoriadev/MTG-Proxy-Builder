@@ -117,7 +117,7 @@ function getSymbolUrl(
 ): string | null {
   // First check border's manaSymbols
   if (borderManaSymbols && borderManaSymbols[symbol]) {
-    return borderManaSymbols[symbol];
+    return proxyImageUrl(borderManaSymbols[symbol]);
   }
 
   // Fall back to symbols.json data (Scryfall SVGs)

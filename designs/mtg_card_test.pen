@@ -24,7 +24,7 @@
           "fill": {
             "type": "image",
             "enabled": true,
-            "url": "./background_images/bg_test.jpg",
+            "url": "./background_images/background.jpg",
             "mode": "fit"
           },
           "layout": "none"
@@ -150,8 +150,8 @@
           "fill": "#F8F4E8",
           "cornerRadius": 4,
           "stroke": {
-            "thickness": 2,
-            "fill": "#8B7355"
+            "thickness": 3,
+            "fill": "#7BA370"
           },
           "layout": "none",
           "children": [
@@ -181,8 +181,8 @@
           "fill": "#F8F4E8",
           "cornerRadius": 4,
           "stroke": {
-            "thickness": 2,
-            "fill": "#8B7355"
+            "thickness": 3,
+            "fill": "#7BA370"
           },
           "layout": "vertical",
           "gap": 16,
@@ -340,29 +340,7 @@
               "cornerRadius": 8,
               "stroke": {
                 "thickness": 3,
-                "fill": {
-                  "type": "gradient",
-                  "gradientType": "linear",
-                  "enabled": true,
-                  "rotation": 90,
-                  "size": {
-                    "height": 1
-                  },
-                  "colors": [
-                    {
-                      "color": "#8B7355",
-                      "position": 0
-                    },
-                    {
-                      "color": "#5C4A3A",
-                      "position": 0.5
-                    },
-                    {
-                      "color": "#8B7355",
-                      "position": 1
-                    }
-                  ]
-                }
+                "fill": "#7BA370"
               },
               "layout": "none",
               "children": [
@@ -378,7 +356,7 @@
                   "cornerRadius": 4,
                   "stroke": {
                     "thickness": 1,
-                    "fill": "#A89880"
+                    "fill": "#7BA370"
                   },
                   "layout": "none"
                 },

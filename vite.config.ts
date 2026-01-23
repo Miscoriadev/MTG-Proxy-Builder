@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  base: '/mtg-proxy-builder/',
+  base: '/MTG-Proxy-Builder/',
   plugins: [react()],
   resolve: {
     alias: {

@@ -779,6 +779,20 @@ export async function renderCard(
     }
   }
 
+  // Draw power/toughness box overlay if card has power and toughness
+  if (card.power !== undefined && card.toughness !== undefined) {
+    const ptOverlayUrl = getBorderImageUrl(borderImageValue, "powerToughness");
+
+    if (ptOverlayUrl) {
+      try {
+        const ptOverlayImage = await loadImageCached(proxyImageUrl(ptOverlayUrl));
+        ctx.drawImage(ptOverlayImage, 0, 0, fullWidth, fullHeight);
+      } catch (e) {
+        console.warn("Failed to load power/toughness overlay:", e);
+      }
+    }
+  }
+
   // Draw card name with dynamic font sizing
   const namePos = getScaledPosition(
     border.textPositions.name,

@@ -6,25 +6,38 @@
       "description": "Traditional Magic card border style",
       "images": {
         "W": {
-          "base": "/borders/classic/white.png"
+          "base": "/borders/classic/white.png",
+          "powerToughness": "/borders/classic/white_pt.png",
+          "legendary": "/borders/classic/legendary_frame.png"
         },
         "U": {
-          "base": "/borders/classic/blue.png"
+          "base": "/borders/classic/blue.png",
+          "powerToughness": "/borders/classic/blue_pt.png",
+          "legendary": "/borders/classic/legendary_frame.png"
         },
         "B": {
-          "base": "/borders/classic/black.png"
+          "base": "/borders/classic/black.png",
+          "powerToughness": "/borders/classic/black_pt.png",
+          "legendary": "/borders/classic/legendary_frame.png"
         },
         "R": {
-          "base": "/borders/classic/red.png"
+          "base": "/borders/classic/red.png",
+          "powerToughness": "/borders/classic/red_pt.png",
+          "legendary": "/borders/classic/legendary_frame.png"
         },
         "G": {
-          "base": "/borders/classic/green.png"
+          "base": "/borders/classic/green.png",
+          "powerToughness": "/borders/classic/green_pt.png",
+          "legendary": "/borders/classic/legendary_frame.png"
         },
         "C": {
-          "base": "/borders/classic/colorless.png"
+          "base": "/borders/classic/colorless.png",
+          "powerToughness": "/borders/classic/colorless_pt.png",
+          "legendary": "/borders/classic/legendary_frame.png"
         },
         "M": {
           "base": "/borders/classic/gold.png",
+          "powerToughness": "/borders/classic/gold_pt.png",
           "legendary": "/borders/classic/legendary_frame.png"
         }
       },

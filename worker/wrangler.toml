@@ -1,0 +1,7 @@
+name = "mtg-proxy-builder-cors"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# Uncomment to enable local development
+# [dev]
+# port = 8787

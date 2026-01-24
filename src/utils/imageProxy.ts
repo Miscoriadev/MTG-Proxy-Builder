@@ -1,7 +1,13 @@
 /**
+ * Cloudflare Worker URL for CORS proxy in production.
+ * Set via VITE_CORS_PROXY_URL environment variable.
+ */
+const CORS_PROXY_URL = import.meta.env.VITE_CORS_PROXY_URL || '';
+
+/**
  * Converts image URLs to use the correct path for the deployment environment.
  * In development, uses Vite's proxy for Scryfall images.
- * In production, uses direct Scryfall URLs and prepends BASE_URL for local assets.
+ * In production, uses Cloudflare Worker proxy for CORS support.
  */
 export function proxyImageUrl(url: string): string {
   if (!url) return url;
@@ -16,7 +22,10 @@ export function proxyImageUrl(url: string): string {
       const path = url.replace('https://cards.scryfall.io', '');
       return `/scryfall-images${path}`;
     }
-    // In production, use direct URL (Scryfall allows CORS)
+    // In production, use Cloudflare Worker proxy for CORS
+    if (CORS_PROXY_URL) {
+      return `${CORS_PROXY_URL}?url=${encodeURIComponent(url)}`;
+    }
     return url;
   }
 
@@ -27,7 +36,10 @@ export function proxyImageUrl(url: string): string {
       const path = url.replace('https://svgs.scryfall.io', '');
       return `/scryfall-symbols${path}`;
     }
-    // In production, use direct URL (Scryfall allows CORS)
+    // In production, use Cloudflare Worker proxy for CORS
+    if (CORS_PROXY_URL) {
+      return `${CORS_PROXY_URL}?url=${encodeURIComponent(url)}`;
+    }
     return url;
   }
 

@@ -12,10 +12,11 @@ interface CardPreviewProps {
   onBackgroundTransformChange?: (transform: BackgroundTransform) => void;
   dpi: number;
   symbolsData?: SymbolsData;
+  debug?: boolean;
 }
 
 export const CardPreview = forwardRef<CardCanvasHandle, CardPreviewProps>(
-  function CardPreview({ card, border, background, backgroundTransform, onBackgroundTransformChange, dpi, symbolsData }, ref) {
+  function CardPreview({ card, border, background, backgroundTransform, onBackgroundTransformChange, dpi, symbolsData, debug }, ref) {
     if (!card || !border) {
       return (
         <div className={styles.cardContainer}>
@@ -40,6 +41,7 @@ export const CardPreview = forwardRef<CardCanvasHandle, CardPreviewProps>(
             onBackgroundTransformChange={onBackgroundTransformChange}
             dpi={dpi}
             symbolsData={symbolsData}
+            debug={debug}
           />
         </div>
       </div>

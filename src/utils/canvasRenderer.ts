@@ -85,6 +85,7 @@ export interface RenderOptions {
   backgroundUrl: string | null;
   backgroundTransform?: BackgroundTransform;
   dpi: number;
+  debug?: boolean;
   symbolsData?: SymbolsData;
 }
 
@@ -655,6 +656,80 @@ async function drawManaCost(
   ctx.shadowOffsetY = 0;
 }
 
+// Debug colors for text position bounding boxes
+const DEBUG_COLORS: Record<string, string> = {
+  name: "rgba(255, 0, 0, 0.4)", // Red
+  manaCost: "rgba(0, 255, 0, 0.4)", // Green
+  typeLine: "rgba(0, 0, 255, 0.4)", // Blue
+  oracleText: "rgba(255, 255, 0, 0.4)", // Yellow
+  flavorText: "rgba(255, 0, 255, 0.4)", // Magenta
+  powerToughness: "rgba(0, 255, 255, 0.4)", // Cyan
+  loyalty: "rgba(255, 128, 0, 0.4)", // Orange
+  art: "rgba(128, 0, 255, 0.4)", // Purple
+};
+
+/**
+ * Draws debug rectangles for all text position bounding boxes.
+ * Each text element gets a different colored rectangle to help with positioning.
+ */
+function drawDebugBoundingBoxes(
+  ctx: CanvasRenderingContext2D,
+  border: BorderConfig,
+  canvasWidth: number,
+  canvasHeight: number,
+  scaleFactor: number,
+): void {
+  ctx.save();
+  ctx.lineWidth = (2 / 3) * scaleFactor;
+
+  // Draw art position
+  if (border.art) {
+    const artCenterX = (border.art.centerX / 100) * canvasWidth;
+    const artCenterY = (border.art.centerY / 100) * canvasHeight;
+    const artRadius = 10 * scaleFactor;
+
+    ctx.strokeStyle = "rgba(128, 0, 255, 0.8)";
+    ctx.beginPath();
+    ctx.arc(artCenterX, artCenterY, artRadius, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Draw crosshairs
+    ctx.beginPath();
+    ctx.moveTo(artCenterX - artRadius * 2, artCenterY);
+    ctx.lineTo(artCenterX + artRadius * 2, artCenterY);
+    ctx.moveTo(artCenterX, artCenterY - artRadius * 2);
+    ctx.lineTo(artCenterX, artCenterY + artRadius * 2);
+    ctx.stroke();
+
+    // Label
+    ctx.fillStyle = "rgba(128, 0, 255, 1)";
+    ctx.font = `bold ${6 * scaleFactor}px sans-serif`;
+    ctx.fillText("ART CENTER", artCenterX + artRadius * 2, artCenterY);
+  }
+
+  // Draw each text position
+  const textPositions = border.textPositions;
+  for (const [key, position] of Object.entries(textPositions)) {
+    if (!position || position.x === undefined) continue;
+
+    const pos = getScaledPosition(position, canvasWidth, canvasHeight, scaleFactor);
+    const color = DEBUG_COLORS[key] || "rgba(128, 128, 128, 0.4)";
+
+    // Stroke rectangle (no fill)
+    ctx.strokeStyle = color.replace("0.4", "0.8");
+    ctx.strokeRect(pos.x, pos.y, pos.width, pos.height);
+
+    // Label
+    ctx.fillStyle = color.replace("0.4", "1");
+    ctx.font = `bold ${5 * scaleFactor}px sans-serif`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    ctx.fillText(key.toUpperCase(), pos.x + 2, pos.y + 2);
+  }
+
+  ctx.restore();
+}
+
 /**
  * Renders a card to the provided visible canvas and returns the full offscreen canvas.
  * The visible canvas shows only the card (no margin), while the returned offscreen
@@ -664,8 +739,15 @@ export async function renderCard(
   canvas: HTMLCanvasElement,
   options: RenderOptions,
 ): Promise<HTMLCanvasElement> {
-  const { card, border, backgroundUrl, backgroundTransform, dpi, symbolsData } =
-    options;
+  const {
+    card,
+    border,
+    backgroundUrl,
+    backgroundTransform,
+    dpi,
+    symbolsData,
+    debug,
+  } = options;
   const { fullWidth, fullHeight, cardWidth, cardHeight, marginPixels } =
     getCanvasDimensions(dpi);
   const scaleFactor = dpi / BASE_DPI;
@@ -1050,6 +1132,11 @@ export async function renderCard(
       loyaltyPos.x + loyaltyPos.width / 2,
       loyaltyPos.y,
     );
+  }
+
+  // Draw debug bounding boxes if debug mode is enabled
+  if (debug) {
+    drawDebugBoundingBoxes(ctx, border, fullWidth, fullHeight, scaleFactor);
   }
 
   // Copy card portion (without margin) from offscreen to visible canvas

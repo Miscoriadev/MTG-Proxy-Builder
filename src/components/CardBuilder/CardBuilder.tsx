@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { BorderConfig, BackgroundsData, SymbolsData } from '../../types';
 import { useCardBuilder } from '../../hooks';
 import { CardPreview, CardCanvasHandle } from '../CardPreview';
@@ -14,6 +14,12 @@ interface CardBuilderProps {
 
 export function CardBuilder({ borders, backgrounds, symbols }: CardBuilderProps) {
   const canvasRef = useRef<CardCanvasHandle>(null);
+
+  // Check for debug query parameter
+  const debug = useMemo(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('debug') === '1';
+  }, []);
 
   const {
     selectedCard,
@@ -47,6 +53,7 @@ export function CardBuilder({ borders, backgrounds, symbols }: CardBuilderProps)
           onBackgroundTransformChange={setBackgroundTransform}
           dpi={dpi}
           symbolsData={symbols}
+          debug={debug}
         />
       </div>
 

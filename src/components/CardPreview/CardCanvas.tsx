@@ -27,6 +27,7 @@ interface CardCanvasProps {
   onBackgroundTransformChange?: (transform: BackgroundTransform) => void;
   dpi: number;
   symbolsData?: SymbolsData;
+  debug?: boolean;
 }
 
 export const CardCanvas = forwardRef<CardCanvasHandle, CardCanvasProps>(
@@ -39,6 +40,7 @@ export const CardCanvas = forwardRef<CardCanvasHandle, CardCanvasProps>(
       onBackgroundTransformChange,
       dpi,
       symbolsData,
+      debug,
     },
     ref,
   ) {
@@ -94,6 +96,7 @@ export const CardCanvas = forwardRef<CardCanvasHandle, CardCanvasProps>(
             backgroundTransform,
             dpi,
             symbolsData,
+            debug,
           });
           // Store the offscreen canvas for export
           offscreenCanvasRef.current = offscreenCanvas;
@@ -105,7 +108,7 @@ export const CardCanvas = forwardRef<CardCanvasHandle, CardCanvasProps>(
       };
 
       render();
-    }, [card, border, backgroundUrl, backgroundTransform, dpi, symbolsData]);
+    }, [card, border, backgroundUrl, backgroundTransform, dpi, symbolsData, debug]);
 
     // Calculate display size (double the base screen size for better preview)
     const displayWidth = 360; // 2.5 inches at 144 DPI

@@ -20,6 +20,8 @@ export function useCardBuilder(
     offsetX: 0,
     offsetY: 0,
   });
+  // Margin in mm for print export (0-5mm range, supports decimals)
+  const [exportMarginMm, setExportMarginMm] = useState<number>(0);
 
   // Reset transform when background changes
   useEffect(() => {
@@ -80,10 +82,12 @@ export function useCardBuilder(
     availableBackgrounds,
     backgroundTransform,
     dpi,
+    exportMarginMm,
     selectCard,
     selectBorder,
     selectBackground,
     setBackgroundTransform,
     setDpi,
+    setExportMarginMm,
   };
 }

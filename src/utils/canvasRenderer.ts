@@ -14,6 +14,15 @@ const BASE_DPI = 72;
 const CARD_WIDTH_INCHES = 2.5;
 const CARD_HEIGHT_INCHES = 3.5;
 
+// Margin constants for print bleed
+const MARGIN_MM = 5;
+const MM_PER_INCH = 25.4;
+const MARGIN_INCHES = MARGIN_MM / MM_PER_INCH; // ~0.197"
+
+// Full canvas includes margin on all sides (border images include this margin)
+const FULL_CANVAS_WIDTH_INCHES = CARD_WIDTH_INCHES + 2 * MARGIN_INCHES;
+const FULL_CANVAS_HEIGHT_INCHES = CARD_HEIGHT_INCHES + 2 * MARGIN_INCHES;
+
 // Fallback mana symbol colors (used when no SVG is available)
 const MANA_COLORS: Record<
   string,
@@ -79,13 +88,22 @@ export interface RenderOptions {
   symbolsData?: SymbolsData;
 }
 
-export function getCanvasDimensions(dpi: number): {
-  width: number;
-  height: number;
-} {
+export interface CanvasDimensions {
+  fullWidth: number; // Full canvas including margin
+  fullHeight: number;
+  cardWidth: number; // Card-only area (no margin)
+  cardHeight: number;
+  marginPixels: number; // Margin in pixels at this DPI
+}
+
+export function getCanvasDimensions(dpi: number): CanvasDimensions {
+  const marginPixels = Math.round((MARGIN_MM / MM_PER_INCH) * dpi);
   return {
-    width: Math.round(CARD_WIDTH_INCHES * dpi),
-    height: Math.round(CARD_HEIGHT_INCHES * dpi),
+    fullWidth: Math.round(FULL_CANVAS_WIDTH_INCHES * dpi),
+    fullHeight: Math.round(FULL_CANVAS_HEIGHT_INCHES * dpi),
+    cardWidth: Math.round(CARD_WIDTH_INCHES * dpi),
+    cardHeight: Math.round(CARD_HEIGHT_INCHES * dpi),
+    marginPixels,
   };
 }
 
@@ -637,26 +655,32 @@ async function drawManaCost(
   ctx.shadowOffsetY = 0;
 }
 
+/**
+ * Renders a card to the provided visible canvas and returns the full offscreen canvas.
+ * The visible canvas shows only the card (no margin), while the returned offscreen
+ * canvas includes the full margin for export purposes.
+ */
 export async function renderCard(
   canvas: HTMLCanvasElement,
   options: RenderOptions,
-): Promise<void> {
+): Promise<HTMLCanvasElement> {
   const { card, border, backgroundUrl, backgroundTransform, dpi, symbolsData } =
     options;
-  const { width, height } = getCanvasDimensions(dpi);
+  const { fullWidth, fullHeight, cardWidth, cardHeight, marginPixels } =
+    getCanvasDimensions(dpi);
   const scaleFactor = dpi / BASE_DPI;
   const borderManaSymbols = border.manaSymbols;
 
-  // Only update canvas dimensions if they changed (setting dimensions clears the canvas)
-  if (canvas.width !== width || canvas.height !== height) {
-    canvas.width = width;
-    canvas.height = height;
+  // Visible canvas shows card-only area (no margin)
+  if (canvas.width !== cardWidth || canvas.height !== cardHeight) {
+    canvas.width = cardWidth;
+    canvas.height = cardHeight;
   }
 
-  // Create offscreen canvas for double buffering to prevent flicker
+  // Offscreen canvas at full size (including margin for border bleed)
   const offscreenCanvas = document.createElement("canvas");
-  offscreenCanvas.width = width;
-  offscreenCanvas.height = height;
+  offscreenCanvas.width = fullWidth;
+  offscreenCanvas.height = fullHeight;
 
   const ctx = offscreenCanvas.getContext("2d");
   if (!ctx) {
@@ -705,7 +729,7 @@ export async function renderCard(
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
   ctx.fillStyle = "#1a1a2e";
-  ctx.fillRect(0, 0, width, height);
+  ctx.fillRect(0, 0, fullWidth, fullHeight);
 
   // Load and draw background
   if (backgroundUrl) {
@@ -714,8 +738,8 @@ export async function renderCard(
       drawImageCover(
         ctx,
         bgImage,
-        width,
-        height,
+        fullWidth,
+        fullHeight,
         border.art,
         backgroundTransform,
       );
@@ -733,7 +757,7 @@ export async function renderCard(
   if (borderImageUrl) {
     try {
       const borderImage = await loadImageCached(proxyImageUrl(borderImageUrl));
-      ctx.drawImage(borderImage, 0, 0, width, height);
+      ctx.drawImage(borderImage, 0, 0, fullWidth, fullHeight);
     } catch (e) {
       console.warn("Failed to load border image:", e);
     }
@@ -748,7 +772,7 @@ export async function renderCard(
         const legendaryImage = await loadImageCached(
           proxyImageUrl(legendaryUrl),
         );
-        ctx.drawImage(legendaryImage, 0, 0, width, height);
+        ctx.drawImage(legendaryImage, 0, 0, fullWidth, fullHeight);
       } catch (e) {
         console.warn("Failed to load legendary overlay:", e);
       }
@@ -758,8 +782,8 @@ export async function renderCard(
   // Draw card name with dynamic font sizing
   const namePos = getScaledPosition(
     border.textPositions.name,
-    width,
-    height,
+    fullWidth,
+    fullHeight,
     scaleFactor,
   );
   // Reset shadow state before drawing text
@@ -786,8 +810,8 @@ export async function renderCard(
   if (card.mana_cost) {
     const manaPos = getScaledPosition(
       border.textPositions.manaCost,
-      width,
-      height,
+      fullWidth,
+      fullHeight,
       scaleFactor,
     );
     await drawManaCost(
@@ -806,8 +830,8 @@ export async function renderCard(
   // Draw type line with dynamic font sizing
   const typePos = getScaledPosition(
     border.textPositions.typeLine,
-    width,
-    height,
+    fullWidth,
+    fullHeight,
     scaleFactor,
   );
   // Reset shadow state before drawing text
@@ -838,16 +862,16 @@ export async function renderCard(
   if (hasOracleText || hasFlavorText) {
     const oraclePos = getScaledPosition(
       border.textPositions.oracleText,
-      width,
-      height,
+      fullWidth,
+      fullHeight,
       scaleFactor,
     );
 
     const flavorPos = hasFlavorText
       ? getScaledPosition(
           border.textPositions.flavorText!,
-          width,
-          height,
+          fullWidth,
+          fullHeight,
           scaleFactor,
         )
       : null;
@@ -980,8 +1004,8 @@ export async function renderCard(
   if (card.power && card.toughness && border.textPositions.powerToughness) {
     const ptPos = getScaledPosition(
       border.textPositions.powerToughness,
-      width,
-      height,
+      fullWidth,
+      fullHeight,
       scaleFactor,
     );
     ctx.font = `bold ${ptPos.fontSize}px ${ptPos.fontFamily}`;
@@ -999,8 +1023,8 @@ export async function renderCard(
   if (card.loyalty && border.textPositions.loyalty) {
     const loyaltyPos = getScaledPosition(
       border.textPositions.loyalty,
-      width,
-      height,
+      fullWidth,
+      fullHeight,
       scaleFactor,
     );
     ctx.font = `bold ${loyaltyPos.fontSize}px ${loyaltyPos.fontFamily}`;
@@ -1014,13 +1038,76 @@ export async function renderCard(
     );
   }
 
-  // Copy completed offscreen canvas to visible canvas in one operation (double buffering)
-  visibleCtx.drawImage(offscreenCanvas, 0, 0);
+  // Copy card portion (without margin) from offscreen to visible canvas
+  visibleCtx.drawImage(
+    offscreenCanvas,
+    marginPixels,
+    marginPixels, // source x, y (skip margin)
+    cardWidth,
+    cardHeight, // source size
+    0,
+    0, // dest x, y
+    cardWidth,
+    cardHeight, // dest size
+  );
+
+  // Return the full offscreen canvas for export purposes
+  return offscreenCanvas;
 }
 
 export function downloadPng(canvas: HTMLCanvasElement, filename: string): void {
   const link = document.createElement("a");
   link.download = `${filename}.png`;
   link.href = canvas.toDataURL("image/png");
+  link.click();
+}
+
+/**
+ * Export a rendered card with configurable margin.
+ * @param renderCanvas - The full-size canvas (including margin) from rendering
+ * @param filename - Base filename without extension
+ * @param dpi - The DPI used for rendering
+ * @param marginMm - Margin to include in export (0-5mm)
+ */
+export function exportPng(
+  renderCanvas: HTMLCanvasElement,
+  filename: string,
+  dpi: number,
+  marginMm: number = 0,
+): void {
+  const { fullWidth, fullHeight, marginPixels } = getCanvasDimensions(dpi);
+
+  // Clamp margin to valid range (0-5mm)
+  const clampedMargin = Math.max(0, Math.min(5, marginMm));
+  const exportMarginPixels = Math.round((clampedMargin / MM_PER_INCH) * dpi);
+
+  // Calculate how much to crop from each side
+  const cropMargin = marginPixels - exportMarginPixels;
+  const exportWidth = fullWidth - 2 * cropMargin;
+  const exportHeight = fullHeight - 2 * cropMargin;
+
+  // Create export canvas with cropped dimensions
+  const exportCanvas = document.createElement("canvas");
+  exportCanvas.width = exportWidth;
+  exportCanvas.height = exportHeight;
+
+  const ctx = exportCanvas.getContext("2d");
+  if (!ctx) return;
+
+  ctx.drawImage(
+    renderCanvas,
+    cropMargin,
+    cropMargin, // source x, y
+    exportWidth,
+    exportHeight, // source size
+    0,
+    0, // dest x, y
+    exportWidth,
+    exportHeight, // dest size
+  );
+
+  const link = document.createElement("a");
+  link.download = `${filename}.png`;
+  link.href = exportCanvas.toDataURL("image/png");
   link.click();
 }

@@ -612,9 +612,12 @@ async function drawManaCost(
   cost: string,
   x: number,
   y: number,
-  maxWidth: number,
+  width: number,
+  height: number,
   fontSize: number,
   scaleFactor: number,
+  align: "left" | "center" | "right",
+  verticalAlign: "top" | "center" | "bottom",
   borderManaSymbols: Record<string, string> | undefined,
   symbolsData: SymbolsData | undefined,
 ): Promise<void> {
@@ -623,8 +626,27 @@ async function drawManaCost(
   const spacing = 1.7 * scaleFactor;
   const totalWidth = symbols.length * (symbolSize + spacing) - spacing;
 
-  // Right-align the mana cost
-  let currentX = x + maxWidth - totalWidth;
+  // Calculate X position based on horizontal alignment
+  let currentX: number;
+  if (align === "left") {
+    currentX = x;
+  } else if (align === "center") {
+    currentX = x + (width - totalWidth) / 2;
+  } else {
+    // right alignment (default behavior)
+    currentX = x + width - totalWidth;
+  }
+
+  // Calculate Y position based on vertical alignment
+  let symbolY: number;
+  if (verticalAlign === "top") {
+    symbolY = y;
+  } else if (verticalAlign === "center") {
+    symbolY = y + (height - symbolSize) / 2;
+  } else {
+    // bottom alignment
+    symbolY = y + height - symbolSize;
+  }
 
   // Set up shadow for mana cost symbols
   ctx.save();
@@ -639,7 +661,7 @@ async function drawManaCost(
       ctx,
       displayValue,
       currentX,
-      y,
+      symbolY,
       symbolSize,
       borderManaSymbols,
       symbolsData,
@@ -915,13 +937,29 @@ export async function renderCard(
     namePos.fontSize,
     namePos.fontFamily,
   );
-  // Center text vertically when font is scaled down
-  const nameYOffset = (namePos.fontSize - nameFontSize) / 2;
   ctx.font = `${nameFontSize}px ${namePos.fontFamily}`;
   ctx.fillStyle = namePos.color;
   ctx.textAlign = namePos.align as CanvasTextAlign;
   ctx.textBaseline = "top";
-  ctx.fillText(card.name, namePos.x, namePos.y + nameYOffset);
+
+  // Calculate X position based on horizontal alignment
+  let nameX = namePos.x;
+  if (namePos.align === "center") {
+    nameX = namePos.x + namePos.width / 2;
+  } else if (namePos.align === "right") {
+    nameX = namePos.x + namePos.width;
+  }
+
+  // Calculate Y position based on vertical alignment
+  const nameVerticalAlign = border.textPositions.name.verticalAlign || "top";
+  let nameY = namePos.y;
+  if (nameVerticalAlign === "center") {
+    nameY = namePos.y + (namePos.height - nameFontSize) / 2;
+  } else if (nameVerticalAlign === "bottom") {
+    nameY = namePos.y + namePos.height - nameFontSize;
+  }
+
+  ctx.fillText(card.name, nameX, nameY);
 
   // Draw mana cost
   if (card.mana_cost) {
@@ -931,14 +969,19 @@ export async function renderCard(
       fullHeight,
       scaleFactor,
     );
+    const manaAlign = (border.textPositions.manaCost.align || "right") as "left" | "center" | "right";
+    const manaVerticalAlign = (border.textPositions.manaCost.verticalAlign || "top") as "top" | "center" | "bottom";
     await drawManaCost(
       ctx,
       card.mana_cost,
       manaPos.x,
       manaPos.y,
       manaPos.width,
+      manaPos.height,
       manaPos.fontSize,
       scaleFactor,
+      manaAlign,
+      manaVerticalAlign,
       borderManaSymbols,
       symbolsData,
     );
@@ -963,13 +1006,29 @@ export async function renderCard(
     typePos.fontSize,
     typePos.fontFamily,
   );
-  // Center text vertically when font is scaled down
-  const typeYOffset = (typePos.fontSize - typeFontSize) / 2;
   ctx.font = `${typeFontSize}px ${typePos.fontFamily}`;
   ctx.fillStyle = typePos.color;
   ctx.textAlign = typePos.align as CanvasTextAlign;
   ctx.textBaseline = "top";
-  ctx.fillText(card.type_line, typePos.x, typePos.y + typeYOffset);
+
+  // Calculate X position based on horizontal alignment
+  let typeX = typePos.x;
+  if (typePos.align === "center") {
+    typeX = typePos.x + typePos.width / 2;
+  } else if (typePos.align === "right") {
+    typeX = typePos.x + typePos.width;
+  }
+
+  // Calculate Y position based on vertical alignment
+  const typeVerticalAlign = border.textPositions.typeLine.verticalAlign || "top";
+  let typeY = typePos.y;
+  if (typeVerticalAlign === "center") {
+    typeY = typePos.y + (typePos.height - typeFontSize) / 2;
+  } else if (typeVerticalAlign === "bottom") {
+    typeY = typePos.y + typePos.height - typeFontSize;
+  }
+
+  ctx.fillText(card.type_line, typeX, typeY);
 
   // Draw oracle text and flavor text with dynamic font sizing
   let oracleEndY = 0;

@@ -367,6 +367,12 @@
   border-color: rgba(220, 53, 69, 0.7);
 }
 
+.actionButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* Canvas wrapper */
 .canvasWrapper {
   position: relative;

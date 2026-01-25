@@ -1224,18 +1224,38 @@ export async function renderCard(
     );
     ctx.font = `${artistPos.fontSize}px ${artistPos.fontFamily}`;
     ctx.fillStyle = artistPos.color;
-    ctx.textAlign = artistPos.align as CanvasTextAlign;
-    ctx.textBaseline = "middle";
 
-    let textX = artistPos.x;
-    const textY = artistPos.y + artistPos.height / 2;
     const iconPath = border.textPositions.artist.icon;
+    const iconSize = artistPos.fontSize * 1.2;
+    const hasIcon = iconPath && imageCache.has(iconPath);
+    const iconSpacing = hasIcon ? iconSize + 2 * scaleFactor : 0;
+    const textWidth = ctx.measureText(card.artist).width;
+    const totalContentWidth = iconSpacing + textWidth;
+
+    // Calculate X position based on horizontal alignment
+    let contentStartX = artistPos.x;
+    if (artistPos.align === "center") {
+      contentStartX = artistPos.x + (artistPos.width - totalContentWidth) / 2;
+    } else if (artistPos.align === "right") {
+      contentStartX = artistPos.x + artistPos.width - totalContentWidth;
+    }
+
+    // Calculate Y position based on vertical alignment
+    const artistVerticalAlign = border.textPositions.artist.verticalAlign || "center";
+    let textY: number;
+    if (artistVerticalAlign === "top") {
+      textY = artistPos.y + artistPos.fontSize / 2;
+    } else if (artistVerticalAlign === "bottom") {
+      textY = artistPos.y + artistPos.height - artistPos.fontSize / 2;
+    } else {
+      // center (default)
+      textY = artistPos.y + artistPos.height / 2;
+    }
 
     // Draw icon if available, tinted to match text color
-    if (iconPath && imageCache.has(iconPath)) {
-      const iconImg = imageCache.get(iconPath)!;
-      const iconSize = artistPos.fontSize * 1.2;
-      const iconY = artistPos.y + (artistPos.height - iconSize) / 2;
+    if (hasIcon) {
+      const iconImg = imageCache.get(iconPath!)!;
+      const iconY = textY - iconSize / 2;
 
       // Create temp canvas to tint the icon
       const tempCanvas = document.createElement("canvas");
@@ -1252,11 +1272,13 @@ export async function renderCard(
       tempCtx.fillRect(0, 0, iconSize, iconSize);
 
       // Draw tinted icon to main canvas
-      ctx.drawImage(tempCanvas, artistPos.x, iconY);
-      textX = artistPos.x + iconSize + 2 * scaleFactor;
+      ctx.drawImage(tempCanvas, contentStartX, iconY);
     }
 
-    ctx.fillText(card.artist, textX, textY);
+    // Draw text after icon
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText(card.artist, contentStartX + iconSpacing, textY);
   }
 
   // Draw copyright text
@@ -1274,8 +1296,28 @@ export async function renderCard(
 
     const currentYear = new Date().getFullYear();
     const copyrightText = `© ${currentYear} Custom Proxy • NOT FOR SALE`;
-    const textY = copyrightPos.y + copyrightPos.height / 2;
-    ctx.fillText(copyrightText, copyrightPos.x, textY);
+
+    // Calculate X position based on horizontal alignment
+    let copyrightX = copyrightPos.x;
+    if (copyrightPos.align === "center") {
+      copyrightX = copyrightPos.x + copyrightPos.width / 2;
+    } else if (copyrightPos.align === "right") {
+      copyrightX = copyrightPos.x + copyrightPos.width;
+    }
+
+    // Calculate Y position based on vertical alignment
+    const copyrightVerticalAlign = border.textPositions.copyright.verticalAlign || "center";
+    let copyrightY: number;
+    if (copyrightVerticalAlign === "top") {
+      copyrightY = copyrightPos.y + copyrightPos.fontSize / 2;
+    } else if (copyrightVerticalAlign === "bottom") {
+      copyrightY = copyrightPos.y + copyrightPos.height - copyrightPos.fontSize / 2;
+    } else {
+      // center (default)
+      copyrightY = copyrightPos.y + copyrightPos.height / 2;
+    }
+
+    ctx.fillText(copyrightText, copyrightX, copyrightY);
   }
 
   // Draw debug bounding boxes if debug mode is enabled

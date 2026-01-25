@@ -1186,13 +1186,29 @@ export async function renderCard(
     );
     ctx.font = `bold ${ptPos.fontSize}px ${ptPos.fontFamily}`;
     ctx.fillStyle = ptPos.color;
-    ctx.textAlign = "center";
+    ctx.textAlign = ptPos.align as CanvasTextAlign;
     ctx.textBaseline = "top";
-    ctx.fillText(
-      `${card.power}/${card.toughness}`,
-      ptPos.x + ptPos.width / 2,
-      ptPos.y,
-    );
+
+    const ptText = `${card.power}/${card.toughness}`;
+
+    // Calculate X position based on horizontal alignment
+    let ptX = ptPos.x;
+    if (ptPos.align === "center") {
+      ptX = ptPos.x + ptPos.width / 2;
+    } else if (ptPos.align === "right") {
+      ptX = ptPos.x + ptPos.width;
+    }
+
+    // Calculate Y position based on vertical alignment
+    const ptVerticalAlign = border.textPositions.powerToughness.verticalAlign || "top";
+    let ptY = ptPos.y;
+    if (ptVerticalAlign === "center") {
+      ptY = ptPos.y + (ptPos.height - ptPos.fontSize) / 2;
+    } else if (ptVerticalAlign === "bottom") {
+      ptY = ptPos.y + ptPos.height - ptPos.fontSize;
+    }
+
+    ctx.fillText(ptText, ptX, ptY);
   }
 
   // Draw loyalty
@@ -1205,13 +1221,27 @@ export async function renderCard(
     );
     ctx.font = `bold ${loyaltyPos.fontSize}px ${loyaltyPos.fontFamily}`;
     ctx.fillStyle = loyaltyPos.color;
-    ctx.textAlign = "center";
+    ctx.textAlign = loyaltyPos.align as CanvasTextAlign;
     ctx.textBaseline = "top";
-    ctx.fillText(
-      card.loyalty,
-      loyaltyPos.x + loyaltyPos.width / 2,
-      loyaltyPos.y,
-    );
+
+    // Calculate X position based on horizontal alignment
+    let loyaltyX = loyaltyPos.x;
+    if (loyaltyPos.align === "center") {
+      loyaltyX = loyaltyPos.x + loyaltyPos.width / 2;
+    } else if (loyaltyPos.align === "right") {
+      loyaltyX = loyaltyPos.x + loyaltyPos.width;
+    }
+
+    // Calculate Y position based on vertical alignment
+    const loyaltyVerticalAlign = border.textPositions.loyalty.verticalAlign || "top";
+    let loyaltyY = loyaltyPos.y;
+    if (loyaltyVerticalAlign === "center") {
+      loyaltyY = loyaltyPos.y + (loyaltyPos.height - loyaltyPos.fontSize) / 2;
+    } else if (loyaltyVerticalAlign === "bottom") {
+      loyaltyY = loyaltyPos.y + loyaltyPos.height - loyaltyPos.fontSize;
+    }
+
+    ctx.fillText(card.loyalty, loyaltyX, loyaltyY);
   }
 
   // Draw artist name with icon

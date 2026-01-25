@@ -666,6 +666,8 @@ const DEBUG_COLORS: Record<string, string> = {
   powerToughness: "rgba(0, 255, 255, 0.4)", // Cyan
   loyalty: "rgba(255, 128, 0, 0.4)", // Orange
   art: "rgba(128, 0, 255, 0.4)", // Purple
+  artist: "rgba(0, 128, 128, 0.4)", // Teal
+  copyright: "rgba(128, 128, 0, 0.4)", // Olive
 };
 
 /**
@@ -801,9 +803,28 @@ export async function renderCard(
       border.textPositions.loyalty.fontFamily || "Georgia, serif",
     );
   }
+  if (border.textPositions.artist) {
+    fontFamilies.add(
+      border.textPositions.artist.fontFamily || "Georgia, serif",
+    );
+  }
+  if (border.textPositions.copyright) {
+    fontFamilies.add(
+      border.textPositions.copyright.fontFamily || "Georgia, serif",
+    );
+  }
 
   // Load all fonts in parallel
   await Promise.all([...fontFamilies].map(ensureFontLoaded));
+
+  // Preload artist icon if defined
+  if (border.textPositions.artist?.icon) {
+    try {
+      await loadImageCached(border.textPositions.artist.icon);
+    } catch (e) {
+      console.warn("Failed to load artist icon:", e);
+    }
+  }
 
   // Clear canvas and reset shadow state
   ctx.shadowColor = "transparent";
@@ -1132,6 +1153,70 @@ export async function renderCard(
       loyaltyPos.x + loyaltyPos.width / 2,
       loyaltyPos.y,
     );
+  }
+
+  // Draw artist name with icon
+  if (card.artist && border.textPositions.artist) {
+    const artistPos = getScaledPosition(
+      border.textPositions.artist,
+      fullWidth,
+      fullHeight,
+      scaleFactor,
+    );
+    ctx.font = `${artistPos.fontSize}px ${artistPos.fontFamily}`;
+    ctx.fillStyle = artistPos.color;
+    ctx.textAlign = artistPos.align as CanvasTextAlign;
+    ctx.textBaseline = "middle";
+
+    let textX = artistPos.x;
+    const textY = artistPos.y + artistPos.height / 2;
+    const iconPath = border.textPositions.artist.icon;
+
+    // Draw icon if available, tinted to match text color
+    if (iconPath && imageCache.has(iconPath)) {
+      const iconImg = imageCache.get(iconPath)!;
+      const iconSize = artistPos.fontSize * 1.2;
+      const iconY = artistPos.y + (artistPos.height - iconSize) / 2;
+
+      // Create temp canvas to tint the icon
+      const tempCanvas = document.createElement("canvas");
+      tempCanvas.width = iconSize;
+      tempCanvas.height = iconSize;
+      const tempCtx = tempCanvas.getContext("2d")!;
+
+      // Draw icon
+      tempCtx.drawImage(iconImg, 0, 0, iconSize, iconSize);
+
+      // Tint with text color using source-in composite
+      tempCtx.globalCompositeOperation = "source-in";
+      tempCtx.fillStyle = artistPos.color;
+      tempCtx.fillRect(0, 0, iconSize, iconSize);
+
+      // Draw tinted icon to main canvas
+      ctx.drawImage(tempCanvas, artistPos.x, iconY);
+      textX = artistPos.x + iconSize + 2 * scaleFactor;
+    }
+
+    ctx.fillText(card.artist, textX, textY);
+  }
+
+  // Draw copyright text
+  if (border.textPositions.copyright) {
+    const copyrightPos = getScaledPosition(
+      border.textPositions.copyright,
+      fullWidth,
+      fullHeight,
+      scaleFactor,
+    );
+    ctx.font = `${copyrightPos.fontSize}px ${copyrightPos.fontFamily}`;
+    ctx.fillStyle = copyrightPos.color;
+    ctx.textAlign = copyrightPos.align as CanvasTextAlign;
+    ctx.textBaseline = "middle";
+
+    const currentYear = new Date().getFullYear();
+    const copyrightText = `© ${currentYear} Custom Proxy • NOT FOR SALE`;
+    const textY = copyrightPos.y + copyrightPos.height / 2;
+    ctx.fillText(copyrightText, copyrightPos.x, textY);
   }
 
   // Draw debug bounding boxes if debug mode is enabled

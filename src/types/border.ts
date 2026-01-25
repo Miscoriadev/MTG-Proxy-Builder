@@ -8,6 +8,7 @@ export interface TextPosition {
   color?: string;
   align?: 'left' | 'center' | 'right';
   verticalAlign?: 'top' | 'center' | 'bottom';
+  icon?: string;
 }
 
 export interface BorderTextPositions {
@@ -18,6 +19,8 @@ export interface BorderTextPositions {
   loyalty?: TextPosition;
   flavorText?: TextPosition;
   manaCost: TextPosition;
+  artist?: TextPosition;
+  copyright?: TextPosition;
 }
 
 export interface BorderImageVariants {

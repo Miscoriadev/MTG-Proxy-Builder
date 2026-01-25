@@ -1,3 +1,2 @@
-- Add creature type borders
 - Automatically put warnings on card types that are not supported (dual sided / adventures / battles / etc.)
 - When searching a card find other art prints on scryfal and make those available as selectable backgrounds

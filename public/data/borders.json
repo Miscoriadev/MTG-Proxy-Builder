@@ -8,37 +8,37 @@
         "W": {
           "base": "/borders/classic/white.png",
           "powerToughness": "/borders/classic/white_pt.png",
-          "legendary": "/borders/classic/legendary_frame.png"
+          "legendary": "/borders/classic/white_legendary.png"
         },
         "U": {
           "base": "/borders/classic/blue.png",
           "powerToughness": "/borders/classic/blue_pt.png",
-          "legendary": "/borders/classic/legendary_frame.png"
+          "legendary": "/borders/classic/blue_legendary.png"
         },
         "B": {
           "base": "/borders/classic/black.png",
           "powerToughness": "/borders/classic/black_pt.png",
-          "legendary": "/borders/classic/legendary_frame.png"
+          "legendary": "/borders/classic/black_legendary.png"
         },
         "R": {
           "base": "/borders/classic/red.png",
           "powerToughness": "/borders/classic/red_pt.png",
-          "legendary": "/borders/classic/legendary_frame.png"
+          "legendary": "/borders/classic/red_legendary.png"
         },
         "G": {
           "base": "/borders/classic/green.png",
           "powerToughness": "/borders/classic/green_pt.png",
-          "legendary": "/borders/classic/legendary_frame.png"
+          "legendary": "/borders/classic/green_legendary.png"
         },
         "C": {
           "base": "/borders/classic/colorless.png",
           "powerToughness": "/borders/classic/colorless_pt.png",
-          "legendary": "/borders/classic/legendary_frame.png"
+          "legendary": "/borders/classic/colorless_legendary.png"
         },
         "M": {
           "base": "/borders/classic/gold.png",
           "powerToughness": "/borders/classic/gold_pt.png",
-          "legendary": "/borders/classic/legendary_frame.png"
+          "legendary": "/borders/classic/gold_legendary.png"
         }
       },
       "art": {

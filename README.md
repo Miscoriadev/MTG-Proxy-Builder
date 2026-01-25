@@ -2,6 +2,8 @@
 
 A web-based application for creating high-quality custom Magic: The Gathering proxy cards. Search for any MTG card, customize its appearance, and download print-ready images.
 
+**[Try it live at mtgproxies.tabletop.cloud](https://mtgproxies.tabletop.cloud)**
+
 ![React](https://img.shields.io/badge/React-19.x-61dafb)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6)
 ![Vite](https://img.shields.io/badge/Vite-7.x-646cff)

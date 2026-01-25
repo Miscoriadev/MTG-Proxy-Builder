@@ -10,13 +10,13 @@ import { ScryfallCard, BorderConfig, SymbolsData } from "../../types";
 import {
   renderCard,
   getCanvasDimensions,
-  downloadPng,
+  exportPng,
   BackgroundTransform,
 } from "../../utils/canvasRenderer";
 import styles from "./CardPreview.module.css";
 
 export interface CardCanvasHandle {
-  download: () => void;
+  download: (marginMm?: number) => void;
 }
 
 interface CardCanvasProps {
@@ -27,6 +27,7 @@ interface CardCanvasProps {
   onBackgroundTransformChange?: (transform: BackgroundTransform) => void;
   dpi: number;
   symbolsData?: SymbolsData;
+  debug?: boolean;
 }
 
 export const CardCanvas = forwardRef<CardCanvasHandle, CardCanvasProps>(
@@ -39,13 +40,16 @@ export const CardCanvas = forwardRef<CardCanvasHandle, CardCanvasProps>(
       onBackgroundTransformChange,
       dpi,
       symbolsData,
+      debug,
     },
     ref,
   ) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const renderLockRef = useRef<Promise<void>>(Promise.resolve());
     const renderIdRef = useRef(0);
-    const { width, height } = getCanvasDimensions(dpi);
+    // Store the full offscreen canvas (with margin) for export
+    const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
+    const { cardWidth, cardHeight } = getCanvasDimensions(dpi);
 
     // Drag state
     const [isDragging, setIsDragging] = useState(false);
@@ -53,10 +57,10 @@ export const CardCanvas = forwardRef<CardCanvasHandle, CardCanvasProps>(
 
     // Expose download function via ref
     useImperativeHandle(ref, () => ({
-      download: () => {
-        if (canvasRef.current) {
+      download: (marginMm: number = 0) => {
+        if (offscreenCanvasRef.current) {
           const filename = card.name.replace(/[^a-zA-Z0-9]/g, "_");
-          downloadPng(canvasRef.current, filename);
+          exportPng(offscreenCanvasRef.current, filename, dpi, marginMm);
         }
       },
     }));
@@ -85,14 +89,17 @@ export const CardCanvas = forwardRef<CardCanvasHandle, CardCanvasProps>(
         });
 
         try {
-          await renderCard(canvas, {
+          const offscreenCanvas = await renderCard(canvas, {
             card,
             border,
             backgroundUrl,
             backgroundTransform,
             dpi,
             symbolsData,
+            debug,
           });
+          // Store the offscreen canvas for export
+          offscreenCanvasRef.current = offscreenCanvas;
         } catch (error) {
           console.error("Failed to render card:", error);
         } finally {
@@ -101,7 +108,7 @@ export const CardCanvas = forwardRef<CardCanvasHandle, CardCanvasProps>(
       };
 
       render();
-    }, [card, border, backgroundUrl, backgroundTransform, dpi, symbolsData]);
+    }, [card, border, backgroundUrl, backgroundTransform, dpi, symbolsData, debug]);
 
     // Calculate display size (double the base screen size for better preview)
     const displayWidth = 360; // 2.5 inches at 144 DPI
@@ -171,8 +178,8 @@ export const CardCanvas = forwardRef<CardCanvasHandle, CardCanvasProps>(
     return (
       <canvas
         ref={canvasRef}
-        width={width}
-        height={height}
+        width={cardWidth}
+        height={cardHeight}
         className={styles.canvas}
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}

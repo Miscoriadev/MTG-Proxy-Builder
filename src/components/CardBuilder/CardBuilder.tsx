@@ -1,8 +1,8 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { BorderConfig, BackgroundsData, SymbolsData } from '../../types';
 import { useCardBuilder } from '../../hooks';
 import { CardPreview, CardCanvasHandle } from '../CardPreview';
-import { CardSelector, BorderSelector, BackgroundSelector, DpiSelector } from '../Controls';
+import { CardSelector, BorderSelector, BackgroundSelector, DpiSelector, MarginSelector } from '../Controls';
 import styles from './CardBuilder.module.css';
 import controlStyles from '../Controls/Controls.module.css';
 
@@ -15,6 +15,12 @@ interface CardBuilderProps {
 export function CardBuilder({ borders, backgrounds, symbols }: CardBuilderProps) {
   const canvasRef = useRef<CardCanvasHandle>(null);
 
+  // Check for debug query parameter
+  const debug = useMemo(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('debug') === '1';
+  }, []);
+
   const {
     selectedCard,
     selectedBorder,
@@ -22,15 +28,17 @@ export function CardBuilder({ borders, backgrounds, symbols }: CardBuilderProps)
     availableBackgrounds,
     backgroundTransform,
     dpi,
+    exportMarginMm,
     selectCard,
     selectBorder,
     selectBackground,
     setBackgroundTransform,
     setDpi,
+    setExportMarginMm,
   } = useCardBuilder(borders, backgrounds);
 
   const handleDownload = () => {
-    canvasRef.current?.download();
+    canvasRef.current?.download(exportMarginMm);
   };
 
   return (
@@ -45,6 +53,7 @@ export function CardBuilder({ borders, backgrounds, symbols }: CardBuilderProps)
           onBackgroundTransformChange={setBackgroundTransform}
           dpi={dpi}
           symbolsData={symbols}
+          debug={debug}
         />
       </div>
 
@@ -70,6 +79,12 @@ export function CardBuilder({ borders, backgrounds, symbols }: CardBuilderProps)
           <DpiSelector
             selectedDpi={dpi}
             onDpiChange={setDpi}
+          />
+
+          <MarginSelector
+            selectedMargin={exportMarginMm}
+            onMarginChange={setExportMarginMm}
+            dpi={dpi}
           />
 
           <button

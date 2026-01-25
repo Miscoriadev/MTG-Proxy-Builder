@@ -19,7 +19,9 @@ This file contains instructions for Claude Code when working on this project.
 | `src/components/CardBuilder/CardBuilder.tsx` | Main UI orchestrator with preview and controls |
 | `src/components/CardPreview/CardCanvas.tsx` | Canvas rendering with drag-to-pan and scroll-to-zoom |
 | `src/components/Controls/` | UI controls (card search, border/background/DPI selectors) |
+| `src/components/BorderEditor/BorderEditor.tsx` | Border configuration editor with live preview |
 | `src/hooks/useCardBuilder.ts` | Central state management for selections and transforms |
+| `src/hooks/useBorderEditor.ts` | Border editor state, localStorage persistence, import/export |
 | `src/services/scryfallApi.ts` | Throttled Scryfall API wrapper |
 | `src/utils/canvasRenderer.ts` | Core rendering engine (text, symbols, images) |
 | `src/utils/manaParser.ts` | Parses mana cost strings into symbol objects |
@@ -35,6 +37,29 @@ This file contains instructions for Claude Code when working on this project.
 - Drag-to-pan and scroll-to-zoom artwork positioning
 - DPI selection for print quality (300-600+)
 - Dynamic text rendering with mana symbol substitution
+- Custom border editor with live preview
+
+### Border Editor
+
+The Border Editor (`/editor` route) allows users to create and customize border configurations with a visual interface.
+
+**Key functionality:**
+- Create new borders based on the "classic" template
+- Import/export border configs as JSON files
+- Drag-and-resize text position boxes on the canvas
+- Configure text properties: font, size, color, alignment (horizontal & vertical)
+- Set art position (center point and scale)
+- Configure border images per mana color (W/U/B/R/G/C)
+
+**Storage:**
+- Custom borders are auto-saved to localStorage (`mtg-proxy-builder-custom-borders`)
+- Each border gets a unique UUID on creation
+- Custom borders appear in the Card Builder's border selector
+
+**Components:**
+- `EditorCanvas` - Interactive canvas with draggable text position overlays
+- `TextboxOverlay` - Draggable/resizable text position control
+- `panels/` - Settings panels (GeneralInfo, ArtPosition, BorderImages, TextPosition)
 
 ## CORS Proxy Worker
 

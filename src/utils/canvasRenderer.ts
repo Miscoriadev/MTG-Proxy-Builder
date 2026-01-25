@@ -612,9 +612,12 @@ async function drawManaCost(
   cost: string,
   x: number,
   y: number,
-  maxWidth: number,
+  width: number,
+  height: number,
   fontSize: number,
   scaleFactor: number,
+  align: "left" | "center" | "right",
+  verticalAlign: "top" | "center" | "bottom",
   borderManaSymbols: Record<string, string> | undefined,
   symbolsData: SymbolsData | undefined,
 ): Promise<void> {
@@ -623,8 +626,27 @@ async function drawManaCost(
   const spacing = 1.7 * scaleFactor;
   const totalWidth = symbols.length * (symbolSize + spacing) - spacing;
 
-  // Right-align the mana cost
-  let currentX = x + maxWidth - totalWidth;
+  // Calculate X position based on horizontal alignment
+  let currentX: number;
+  if (align === "left") {
+    currentX = x;
+  } else if (align === "center") {
+    currentX = x + (width - totalWidth) / 2;
+  } else {
+    // right alignment (default behavior)
+    currentX = x + width - totalWidth;
+  }
+
+  // Calculate Y position based on vertical alignment
+  let symbolY: number;
+  if (verticalAlign === "top") {
+    symbolY = y;
+  } else if (verticalAlign === "center") {
+    symbolY = y + (height - symbolSize) / 2;
+  } else {
+    // bottom alignment
+    symbolY = y + height - symbolSize;
+  }
 
   // Set up shadow for mana cost symbols
   ctx.save();
@@ -639,7 +661,7 @@ async function drawManaCost(
       ctx,
       displayValue,
       currentX,
-      y,
+      symbolY,
       symbolSize,
       borderManaSymbols,
       symbolsData,
@@ -915,13 +937,29 @@ export async function renderCard(
     namePos.fontSize,
     namePos.fontFamily,
   );
-  // Center text vertically when font is scaled down
-  const nameYOffset = (namePos.fontSize - nameFontSize) / 2;
   ctx.font = `${nameFontSize}px ${namePos.fontFamily}`;
   ctx.fillStyle = namePos.color;
   ctx.textAlign = namePos.align as CanvasTextAlign;
   ctx.textBaseline = "top";
-  ctx.fillText(card.name, namePos.x, namePos.y + nameYOffset);
+
+  // Calculate X position based on horizontal alignment
+  let nameX = namePos.x;
+  if (namePos.align === "center") {
+    nameX = namePos.x + namePos.width / 2;
+  } else if (namePos.align === "right") {
+    nameX = namePos.x + namePos.width;
+  }
+
+  // Calculate Y position based on vertical alignment
+  const nameVerticalAlign = border.textPositions.name.verticalAlign || "top";
+  let nameY = namePos.y;
+  if (nameVerticalAlign === "center") {
+    nameY = namePos.y + (namePos.height - nameFontSize) / 2;
+  } else if (nameVerticalAlign === "bottom") {
+    nameY = namePos.y + namePos.height - nameFontSize;
+  }
+
+  ctx.fillText(card.name, nameX, nameY);
 
   // Draw mana cost
   if (card.mana_cost) {
@@ -931,14 +969,19 @@ export async function renderCard(
       fullHeight,
       scaleFactor,
     );
+    const manaAlign = (border.textPositions.manaCost.align || "right") as "left" | "center" | "right";
+    const manaVerticalAlign = (border.textPositions.manaCost.verticalAlign || "top") as "top" | "center" | "bottom";
     await drawManaCost(
       ctx,
       card.mana_cost,
       manaPos.x,
       manaPos.y,
       manaPos.width,
+      manaPos.height,
       manaPos.fontSize,
       scaleFactor,
+      manaAlign,
+      manaVerticalAlign,
       borderManaSymbols,
       symbolsData,
     );
@@ -963,13 +1006,29 @@ export async function renderCard(
     typePos.fontSize,
     typePos.fontFamily,
   );
-  // Center text vertically when font is scaled down
-  const typeYOffset = (typePos.fontSize - typeFontSize) / 2;
   ctx.font = `${typeFontSize}px ${typePos.fontFamily}`;
   ctx.fillStyle = typePos.color;
   ctx.textAlign = typePos.align as CanvasTextAlign;
   ctx.textBaseline = "top";
-  ctx.fillText(card.type_line, typePos.x, typePos.y + typeYOffset);
+
+  // Calculate X position based on horizontal alignment
+  let typeX = typePos.x;
+  if (typePos.align === "center") {
+    typeX = typePos.x + typePos.width / 2;
+  } else if (typePos.align === "right") {
+    typeX = typePos.x + typePos.width;
+  }
+
+  // Calculate Y position based on vertical alignment
+  const typeVerticalAlign = border.textPositions.typeLine.verticalAlign || "top";
+  let typeY = typePos.y;
+  if (typeVerticalAlign === "center") {
+    typeY = typePos.y + (typePos.height - typeFontSize) / 2;
+  } else if (typeVerticalAlign === "bottom") {
+    typeY = typePos.y + typePos.height - typeFontSize;
+  }
+
+  ctx.fillText(card.type_line, typeX, typeY);
 
   // Draw oracle text and flavor text with dynamic font sizing
   let oracleEndY = 0;
@@ -1165,18 +1224,38 @@ export async function renderCard(
     );
     ctx.font = `${artistPos.fontSize}px ${artistPos.fontFamily}`;
     ctx.fillStyle = artistPos.color;
-    ctx.textAlign = artistPos.align as CanvasTextAlign;
-    ctx.textBaseline = "middle";
 
-    let textX = artistPos.x;
-    const textY = artistPos.y + artistPos.height / 2;
     const iconPath = border.textPositions.artist.icon;
+    const iconSize = artistPos.fontSize * 1.2;
+    const hasIcon = iconPath && imageCache.has(iconPath);
+    const iconSpacing = hasIcon ? iconSize + 2 * scaleFactor : 0;
+    const textWidth = ctx.measureText(card.artist).width;
+    const totalContentWidth = iconSpacing + textWidth;
+
+    // Calculate X position based on horizontal alignment
+    let contentStartX = artistPos.x;
+    if (artistPos.align === "center") {
+      contentStartX = artistPos.x + (artistPos.width - totalContentWidth) / 2;
+    } else if (artistPos.align === "right") {
+      contentStartX = artistPos.x + artistPos.width - totalContentWidth;
+    }
+
+    // Calculate Y position based on vertical alignment
+    const artistVerticalAlign = border.textPositions.artist.verticalAlign || "center";
+    let textY: number;
+    if (artistVerticalAlign === "top") {
+      textY = artistPos.y + artistPos.fontSize / 2;
+    } else if (artistVerticalAlign === "bottom") {
+      textY = artistPos.y + artistPos.height - artistPos.fontSize / 2;
+    } else {
+      // center (default)
+      textY = artistPos.y + artistPos.height / 2;
+    }
 
     // Draw icon if available, tinted to match text color
-    if (iconPath && imageCache.has(iconPath)) {
-      const iconImg = imageCache.get(iconPath)!;
-      const iconSize = artistPos.fontSize * 1.2;
-      const iconY = artistPos.y + (artistPos.height - iconSize) / 2;
+    if (hasIcon) {
+      const iconImg = imageCache.get(iconPath!)!;
+      const iconY = textY - iconSize / 2;
 
       // Create temp canvas to tint the icon
       const tempCanvas = document.createElement("canvas");
@@ -1193,11 +1272,13 @@ export async function renderCard(
       tempCtx.fillRect(0, 0, iconSize, iconSize);
 
       // Draw tinted icon to main canvas
-      ctx.drawImage(tempCanvas, artistPos.x, iconY);
-      textX = artistPos.x + iconSize + 2 * scaleFactor;
+      ctx.drawImage(tempCanvas, contentStartX, iconY);
     }
 
-    ctx.fillText(card.artist, textX, textY);
+    // Draw text after icon
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText(card.artist, contentStartX + iconSpacing, textY);
   }
 
   // Draw copyright text
@@ -1215,8 +1296,28 @@ export async function renderCard(
 
     const currentYear = new Date().getFullYear();
     const copyrightText = `© ${currentYear} Custom Proxy • NOT FOR SALE`;
-    const textY = copyrightPos.y + copyrightPos.height / 2;
-    ctx.fillText(copyrightText, copyrightPos.x, textY);
+
+    // Calculate X position based on horizontal alignment
+    let copyrightX = copyrightPos.x;
+    if (copyrightPos.align === "center") {
+      copyrightX = copyrightPos.x + copyrightPos.width / 2;
+    } else if (copyrightPos.align === "right") {
+      copyrightX = copyrightPos.x + copyrightPos.width;
+    }
+
+    // Calculate Y position based on vertical alignment
+    const copyrightVerticalAlign = border.textPositions.copyright.verticalAlign || "center";
+    let copyrightY: number;
+    if (copyrightVerticalAlign === "top") {
+      copyrightY = copyrightPos.y + copyrightPos.fontSize / 2;
+    } else if (copyrightVerticalAlign === "bottom") {
+      copyrightY = copyrightPos.y + copyrightPos.height - copyrightPos.fontSize / 2;
+    } else {
+      // center (default)
+      copyrightY = copyrightPos.y + copyrightPos.height / 2;
+    }
+
+    ctx.fillText(copyrightText, copyrightX, copyrightY);
   }
 
   // Draw debug bounding boxes if debug mode is enabled

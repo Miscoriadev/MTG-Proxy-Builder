@@ -1,6 +1,6 @@
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { BorderConfig, BackgroundsData, SymbolsData } from '../../types';
-import { useCardBuilder } from '../../hooks';
+import { useCardBuilder, loadCustomBorders, CUSTOM_BORDERS_STORAGE_KEY } from '../../hooks';
 import { CardPreview, CardCanvasHandle } from '../CardPreview';
 import { CardSelector, BorderSelector, BackgroundSelector, DpiSelector, MarginSelector } from '../Controls';
 import styles from './CardBuilder.module.css';
@@ -21,6 +21,41 @@ export function CardBuilder({ borders, backgrounds, symbols }: CardBuilderProps)
     return params.get('debug') === '1';
   }, []);
 
+  // Load custom borders from localStorage
+  const [customBorders, setCustomBorders] = useState<BorderConfig[]>(() => loadCustomBorders());
+
+  // Reload custom borders when localStorage changes or component mounts
+  const reloadCustomBorders = useCallback(() => {
+    setCustomBorders(loadCustomBorders());
+  }, []);
+
+  // Listen for storage events (when another tab/the editor updates custom borders)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === CUSTOM_BORDERS_STORAGE_KEY) {
+        reloadCustomBorders();
+      }
+    };
+
+    // Also reload when window gains focus (user may have switched from editor)
+    const handleFocus = () => {
+      reloadCustomBorders();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [reloadCustomBorders]);
+
+  // Combine built-in borders with custom borders
+  const allBorders = useMemo(() => {
+    return [...borders, ...customBorders];
+  }, [borders, customBorders]);
+
   const {
     selectedCard,
     selectedBorder,
@@ -35,7 +70,7 @@ export function CardBuilder({ borders, backgrounds, symbols }: CardBuilderProps)
     setBackgroundTransform,
     setDpi,
     setExportMarginMm,
-  } = useCardBuilder(borders, backgrounds);
+  } = useCardBuilder(allBorders, backgrounds);
 
   const handleDownload = () => {
     canvasRef.current?.download(exportMarginMm);
@@ -65,7 +100,7 @@ export function CardBuilder({ borders, backgrounds, symbols }: CardBuilderProps)
           />
 
           <BorderSelector
-            borders={borders}
+            borders={allBorders}
             selectedBorder={selectedBorder}
             onSelect={selectBorder}
           />

@@ -1,8 +1,13 @@
+import { useState } from 'react';
 import { useBorders, useBackgrounds, useSymbols } from './hooks';
 import { CardBuilder } from './components/CardBuilder';
+import { Header, ViewType } from './components/Header';
+import { BorderEditor } from './components/BorderEditor';
 import styles from './App.module.css';
 
 function App() {
+  const [currentView, setCurrentView] = useState<ViewType>('generator');
+
   const { borders, loading: bordersLoading, error: bordersError } = useBorders();
   const { backgrounds, loading: backgroundsLoading, error: backgroundsError } = useBackgrounds();
   const { symbols, loading: symbolsLoading, error: symbolsError } = useSymbols();
@@ -31,14 +36,20 @@ function App() {
 
   return (
     <div className={styles.app}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>MTG Card Builder</h1>
-      </header>
-      <CardBuilder
-        borders={borders}
-        backgrounds={backgrounds}
-        symbols={symbols}
-      />
+      <Header currentView={currentView} onViewChange={setCurrentView} />
+      {currentView === 'generator' ? (
+        <CardBuilder
+          borders={borders}
+          backgrounds={backgrounds}
+          symbols={symbols}
+        />
+      ) : (
+        <BorderEditor
+          borders={borders}
+          backgrounds={backgrounds}
+          symbols={symbols}
+        />
+      )}
     </div>
   );
 }

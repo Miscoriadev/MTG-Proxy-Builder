@@ -379,11 +379,36 @@
   display: inline-block;
 }
 
-/* Card selector in editor */
-.cardSelectorWrapper {
+/* Canvas controls row (card selector + scale dropdown) */
+.canvasControlsRow {
+  display: flex;
+  gap: 0.5rem;
   width: 100%;
   max-width: 360px;
-  margin-top: 1rem;
+  align-items: flex-end;
+}
+
+.canvasControlsRow > :first-child {
+  flex: 1;
+}
+
+.scaleSelect {
+  padding: 0.75rem 0.5rem;
+  background: #16213e;
+  border: 1px solid #2a3f5f;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.scaleSelect:focus {
+  outline: none;
+  border-color: #4a90d9;
+}
+
+.scaledCanvasContainer {
+  display: inline-block;
 }
 
 @media (max-width: 900px) {

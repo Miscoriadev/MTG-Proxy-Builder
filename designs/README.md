@@ -1,24 +1,35 @@
 # MTG Card Design Reference
 
-## mtg_card_test.pen - Export Visibility
+## mtg_card_test.pen - Export Configurations
 
-When exporting the card design, the following elements should have `enabled: false` to be invisible:
+### Always Hide for Export
 
-| Node ID | Name | Purpose |
-|---------|------|---------|
-| `IlCJT` | Bleed Overlay | Black frame showing 5mm bleed area - **Always hide for final export** |
+| Node ID | Name          | Purpose                            |
+| ------- | ------------- | ---------------------------------- |
+| `IlCJT` | Bleed Overlay | Black frame showing 5mm bleed area |
 
-### Placeholder Content (Currently Hidden)
+### Border Export
 
-These elements contain placeholder/sample content and are hidden by default:
+Hide all elements below:
 
-| Node ID | Name |
-|---------|------|
-| `eojXY` | Card Art |
-| `ru6wV` | Type Line |
-| `NuFnE` | Rules Text 1 |
-| `cEEUm` | Rules Text 2 |
-| `AEfIk` | Flavor Text |
+| Node ID | Name            |
+| ------- | --------------- |
+| `eojXY` | Card Art        |
+| `ru6wV` | Type Line       |
+| `NuFnE` | Rules Text 1    |
+| `cEEUm` | Rules Text 2    |
+| `AEfIk` | Flavor Text     |
 | `fBKua` | Paintbrush Icon |
-| `hixfv` | artistName |
-| `CrqRG` | copyright |
+| `hixfv` | artistName      |
+| `CrqRG` | copyright       |
+| `bYaN8` | Card Name       |
+| `RxxNm` | Mana Cost       |
+| `tvWDk` | PT Container    |
+
+### Power Toughness Export
+
+Hide all elements except:
+
+| Node ID | Name         |
+| ------- | ------------ |
+| `tvWDk` | PT Container |

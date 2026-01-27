@@ -7,24 +7,40 @@
       "x": 100,
       "y": 100,
       "name": "Green MTG Card",
-      "width": 750,
-      "height": 1050,
-      "fill": "#F5F0E1",
+      "width": 868,
+      "height": 1168,
+      "fill": "#f5f0e100",
       "cornerRadius": 24,
       "layout": "none",
       "children": [
+        {
+          "type": "frame",
+          "id": "eojXY",
+          "x": 0,
+          "y": 0,
+          "name": "Card Art",
+          "width": 868,
+          "height": 1168,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "./images/generated-1769178736023.png",
+            "mode": "fill"
+          },
+          "layout": "none"
+        },
         {
           "type": "frame",
           "id": "8diNA",
           "x": 0,
           "y": 0,
           "name": "Art Frame Overlay",
-          "width": 750,
-          "height": 1050,
+          "width": 868,
+          "height": 1168,
           "fill": {
             "type": "image",
             "enabled": true,
-            "url": "./background_images/background.jpg",
+            "url": "./images/parchment/background_v2.png",
             "mode": "fit"
           },
           "layout": "none"
@@ -32,106 +48,181 @@
         {
           "type": "frame",
           "id": "UfhWj",
-          "x": 24,
-          "y": 24,
+          "x": 83,
+          "y": 83,
           "name": "Title Area",
           "width": 702,
           "height": 60,
           "fill": "transparent",
-          "padding": [
-            0,
-            8,
-            0,
-            0
-          ],
           "justifyContent": "space_between",
           "alignItems": "center",
           "children": [
             {
-              "type": "text",
-              "id": "bYaN8",
-              "name": "Card Name",
-              "fill": "#1a1a1a",
-              "content": "Elderwood Guardian",
-              "fontFamily": "Times New Roman",
-              "fontSize": 24,
-              "fontWeight": "bold"
-            },
-            {
               "type": "frame",
-              "id": "NTN61",
-              "name": "Mana Cost",
-              "height": 40,
-              "gap": 4,
-              "alignItems": "center",
+              "id": "J9nju",
+              "name": "Name Box",
+              "width": "fill_container",
+              "height": 72,
+              "fill": {
+                "type": "gradient",
+                "gradientType": "linear",
+                "enabled": true,
+                "rotation": 180,
+                "size": {
+                  "height": 1
+                },
+                "colors": [
+                  {
+                    "color": "#E8DCC8E6",
+                    "position": 0
+                  },
+                  {
+                    "color": "#D4C4A8E6",
+                    "position": 0.5
+                  },
+                  {
+                    "color": "#E8DCC8E6",
+                    "position": 1
+                  }
+                ]
+              },
+              "cornerRadius": 16,
+              "stroke": {
+                "thickness": 4.5,
+                "fill": "#7BA370"
+              },
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#00000060",
+                "offset": {
+                  "x": 0,
+                  "y": 8
+                },
+                "blur": 16,
+                "spread": 4
+              },
+              "layout": "none",
               "children": [
                 {
                   "type": "frame",
-                  "id": "7cTCQ",
-                  "name": "manaGeneric",
-                  "width": 32,
-                  "height": 32,
-                  "fill": "#CBBFAD",
-                  "cornerRadius": 16,
-                  "layout": "none",
+                  "id": "cr9e8",
+                  "x": 9,
+                  "y": 9,
+                  "name": "Inner Border",
+                  "width": 684,
+                  "height": 54,
+                  "fill": "transparent",
+                  "cornerRadius": 10,
+                  "stroke": {
+                    "thickness": 1.5,
+                    "fill": "#7BA370"
+                  }
+                },
+                {
+                  "type": "frame",
+                  "id": "hHgzo",
+                  "x": 9,
+                  "y": 9,
+                  "name": "Name Content",
+                  "width": 684,
+                  "height": 54,
+                  "fill": "transparent",
+                  "padding": [
+                    8,
+                    20
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
                   "children": [
                     {
                       "type": "text",
-                      "id": "nD1cb",
-                      "x": 9,
-                      "y": 4,
-                      "name": "manaNumber",
+                      "id": "bYaN8",
+                      "name": "Card Name",
                       "fill": "#1a1a1a",
-                      "content": "4",
-                      "fontFamily": "Inter",
-                      "fontSize": 18,
+                      "content": "Elderwood Guardian",
+                      "fontFamily": "Times New Roman",
+                      "fontSize": 38,
                       "fontWeight": "bold"
-                    }
-                  ]
-                },
-                {
-                  "type": "frame",
-                  "id": "K1dmf",
-                  "name": "manaGreen1",
-                  "width": 32,
-                  "height": 32,
-                  "fill": "#7BA370",
-                  "cornerRadius": 16,
-                  "layout": "none",
-                  "children": [
+                    },
                     {
-                      "type": "text",
-                      "id": "42kw9",
-                      "x": 7,
-                      "y": 5,
-                      "name": "treeIcon1",
-                      "content": "🌲",
-                      "fontFamily": "Inter",
-                      "fontSize": 16,
-                      "fontWeight": "normal"
-                    }
-                  ]
-                },
-                {
-                  "type": "frame",
-                  "id": "xI6VV",
-                  "name": "manaGreen2",
-                  "width": 32,
-                  "height": 32,
-                  "fill": "#7BA370",
-                  "cornerRadius": 16,
-                  "layout": "none",
-                  "children": [
-                    {
-                      "type": "text",
-                      "id": "Smcit",
-                      "x": 7,
-                      "y": 5,
-                      "name": "treeIcon2",
-                      "content": "🌲",
-                      "fontFamily": "Inter",
-                      "fontSize": 16,
-                      "fontWeight": "normal"
+                      "type": "frame",
+                      "id": "RxxNm",
+                      "name": "Mana Cost",
+                      "gap": 4,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "n9nCa",
+                          "name": "Mana Generic",
+                          "width": 32,
+                          "height": 32,
+                          "fill": "#CBBFAD",
+                          "cornerRadius": 16,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Oo8iy",
+                              "x": 9,
+                              "y": 4,
+                              "name": "Mana Number",
+                              "fill": "#1a1a1a",
+                              "content": "4",
+                              "fontFamily": "Inter",
+                              "fontSize": 18,
+                              "fontWeight": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "kmxjB",
+                          "name": "Mana Green 1",
+                          "width": 32,
+                          "height": 32,
+                          "fill": "#7BA370",
+                          "cornerRadius": 16,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "NeDui",
+                              "x": 7,
+                              "y": 5,
+                              "name": "Tree Icon",
+                              "content": "🌲",
+                              "fontFamily": "Inter",
+                              "fontSize": 16,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "3MUwQ",
+                          "name": "Mana Green 2",
+                          "width": 32,
+                          "height": 32,
+                          "fill": "#7BA370",
+                          "cornerRadius": 16,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "J2Y5Y",
+                              "x": 7,
+                              "y": 5,
+                              "name": "Tree Icon",
+                              "content": "🌲",
+                              "fontFamily": "Inter",
+                              "fontSize": 16,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
                 }
@@ -142,29 +233,40 @@
         {
           "type": "frame",
           "id": "yXgBn",
-          "x": 24,
-          "y": 620,
+          "x": 83,
+          "y": 659,
           "name": "Type Line Bar",
           "width": 702,
-          "height": 40,
-          "fill": "#F8F4E8",
-          "cornerRadius": 4,
+          "height": 60,
+          "fill": "#E8DCC8E6",
+          "cornerRadius": 16,
           "stroke": {
-            "thickness": 3,
+            "thickness": 4.5,
             "fill": "#7BA370"
+          },
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000060",
+            "offset": {
+              "x": 0,
+              "y": 8
+            },
+            "blur": 16,
+            "spread": 4
           },
           "layout": "none",
           "children": [
             {
               "type": "text",
               "id": "ru6wV",
-              "x": 200,
-              "y": 8,
+              "x": 141,
+              "y": 9,
               "name": "Type Line",
               "fill": "#1a1a1a",
               "content": "Creature — Treefolk Guardian",
               "fontFamily": "Plantin MT Pro",
-              "fontSize": 20,
+              "fontSize": 30,
               "fontWeight": "normal",
               "fontStyle": "italic"
             }
@@ -173,16 +275,27 @@
         {
           "type": "frame",
           "id": "h32rF",
-          "x": 24,
-          "y": 670,
+          "x": 83,
+          "y": 729,
           "name": "Text Box",
           "width": 702,
           "height": 280,
-          "fill": "#F8F4E8",
-          "cornerRadius": 4,
+          "fill": "#E8DCC8E6",
+          "cornerRadius": 16,
           "stroke": {
-            "thickness": 3,
+            "thickness": 4.5,
             "fill": "#7BA370"
+          },
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000060",
+            "offset": {
+              "x": 0,
+              "y": 8
+            },
+            "blur": 16,
+            "spread": 4
           },
           "layout": "vertical",
           "gap": 16,
@@ -232,8 +345,8 @@
         {
           "type": "frame",
           "id": "0bezv",
-          "x": 24,
-          "y": 970,
+          "x": 83,
+          "y": 1029,
           "name": "Artist Credit",
           "width": 400,
           "height": 30,
@@ -264,8 +377,8 @@
         {
           "type": "frame",
           "id": "2Xn4h",
-          "x": 24,
-          "y": 1000,
+          "x": 83,
+          "y": 1059,
           "name": "Footer",
           "width": 702,
           "height": 30,
@@ -287,8 +400,8 @@
         {
           "type": "frame",
           "id": "tvWDk",
-          "x": 576,
-          "y": 900,
+          "x": 635,
+          "y": 959,
           "name": "PT Container",
           "width": 150,
           "height": 85,
@@ -339,7 +452,7 @@
               },
               "cornerRadius": 8,
               "stroke": {
-                "thickness": 3,
+                "thickness": 4.5,
                 "fill": "#7BA370"
               },
               "layout": "none",
@@ -355,7 +468,7 @@
                   "fill": "transparent",
                   "cornerRadius": 4,
                   "stroke": {
-                    "thickness": 1,
+                    "thickness": 1.5,
                     "fill": "#7BA370"
                   },
                   "layout": "none"
@@ -387,6 +500,18 @@
               ]
             }
           ]
+        },
+        {
+          "type": "path",
+          "id": "IlCJT",
+          "x": 0,
+          "y": 0,
+          "name": "Bleed Overlay",
+          "geometry": "M0 0l868 0 0 1168-868 0z m83 59l702 0q24 0 24 24l0 1002q0 24-24 24l-702 0q-24 0-24-24l0-1002q0-24 24-24z",
+          "fillRule": "evenodd",
+          "fill": "#000000",
+          "width": 868,
+          "height": 1168
         }
       ]
     }

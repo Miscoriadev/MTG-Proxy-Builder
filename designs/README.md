@@ -33,3 +33,9 @@ Hide all elements except:
 | Node ID | Name         |
 | ------- | ------------ |
 | `tvWDk` | PT Container |
+
+Also hide the PT Value text inside the PT Container:
+
+| Node ID | Name     |
+| ------- | -------- |
+| `OR3h2` | PT Value |

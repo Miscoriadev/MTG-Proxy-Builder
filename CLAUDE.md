@@ -106,3 +106,7 @@ When the user says "deploy" or asks to deploy the application:
    ```
 
 The GitHub Pages deployment is triggered automatically when changes are pushed to the `production` branch.
+
+## Design Files
+
+When working on `.pen` files in the `designs/` directory, read `designs/README.md` for important reference information about export visibility settings and element IDs.

@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useState, useEffect, useMemo } from 'react';
 import { BorderConfig, BackgroundsData, SymbolsData, BorderTextPositions } from '../../types';
 import { useBorderEditor } from '../../hooks';
 import { CardSelector } from '../Controls';
@@ -44,6 +44,34 @@ export function BorderEditor({ borders, backgrounds: _backgrounds, symbols }: Bo
     deleteCustomBorder,
   } = useBorderEditor(borders);
 
+  // Canvas scale mode state
+  const [canvasScaleMode, setCanvasScaleMode] = useState<'actual' | 'fill'>('actual');
+  const previewSectionRef = useRef<HTMLDivElement>(null);
+  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+
+  // Canvas dimensions
+  const CANVAS_WIDTH = 360;
+  const CANVAS_HEIGHT = 504;
+
+  // Update window height on resize
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowHeight(window.innerHeight);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Calculate scale based on mode
+  const canvasScale = useMemo(() => {
+    if (canvasScaleMode === 'fill') {
+      const padding = 200; // Account for header, controls row, and margins
+      return Math.min((windowHeight - padding) / CANVAS_HEIGHT, 2);
+    }
+    return 1;
+  }, [canvasScaleMode, windowHeight]);
+
   const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -73,10 +101,19 @@ export function BorderEditor({ borders, backgrounds: _backgrounds, symbols }: Bo
 
   return (
     <div className={styles.container}>
-      <div className={styles.previewSection}>
+      <div className={styles.previewSection} ref={previewSectionRef}>
         {hasActiveConfig ? (
           previewCard ? (
-            <EditorCanvas
+            <div
+              className={styles.scaledCanvasContainer}
+              style={{
+                transform: `scale(${canvasScale})`,
+                transformOrigin: 'top center',
+                width: CANVAS_WIDTH,
+                height: CANVAS_HEIGHT,
+              }}
+            >
+              <EditorCanvas
               ref={canvasRef}
               card={previewCard}
               border={editingConfig}
@@ -87,6 +124,7 @@ export function BorderEditor({ borders, backgrounds: _backgrounds, symbols }: Bo
               selectedTextPositionKey={selectedTextPositionKey}
               onTextPositionChange={updateTextPosition}
             />
+            </div>
           ) : (
             <div className={styles.placeholder}>
               Select a card to preview
@@ -102,8 +140,19 @@ export function BorderEditor({ borders, backgrounds: _backgrounds, symbols }: Bo
           </div>
         )}
         {hasActiveConfig && (
-          <div className={styles.cardSelectorWrapper}>
+          <div
+            className={styles.canvasControlsRow}
+            style={{ marginTop: `${(canvasScale - 1) * CANVAS_HEIGHT + 16}px` }}
+          >
             <CardSelector selectedCard={previewCard} onSelect={setPreviewCard} />
+            <select
+              className={styles.scaleSelect}
+              value={canvasScaleMode}
+              onChange={(e) => setCanvasScaleMode(e.target.value as 'actual' | 'fill')}
+            >
+              <option value="actual">Actual size</option>
+              <option value="fill">Fill</option>
+            </select>
           </div>
         )}
       </div>

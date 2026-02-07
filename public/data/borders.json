@@ -50,31 +50,34 @@
       "textPositions": {
         "name": {
           "x": 14.1,
-          "y": 10.4,
-          "width": 56.2,
-          "height": 5.4,
+          "y": 9.7,
+          "width": 53.1,
+          "height": 4.7,
           "fontSize": 9,
           "fontFamily": "Beleren2016, Beleren, serif",
           "color": "#000000",
-          "align": "left"
+          "align": "left",
+          "verticalAlign": "center"
         },
         "manaCost": {
           "x": 67.3,
-          "y": 10.4,
+          "y": 9.7,
           "width": 19,
-          "height": 5.4,
+          "height": 4.7,
           "fontSize": 6.5,
-          "align": "right"
+          "align": "right",
+          "verticalAlign": "center"
         },
         "typeLine": {
           "x": 14.1,
-          "y": 56.8,
-          "width": 72.6,
+          "y": 55.9,
+          "width": 71.9,
           "height": 4.5,
           "fontSize": 8,
           "fontFamily": "Beleren2016, Beleren, serif",
           "color": "#000000",
-          "align": "left"
+          "align": "left",
+          "verticalAlign": "center"
         },
         "oracleText": {
           "x": 14.6,
@@ -94,13 +97,14 @@
         },
         "powerToughness": {
           "x": 75.9,
-          "y": 85.8,
+          "y": 85.6,
           "width": 10.6,
-          "height": 4,
+          "height": 3.7,
           "fontSize": 10,
           "fontFamily": "Beleren2016, Beleren, serif",
           "color": "#000000",
-          "align": "center"
+          "align": "center",
+          "verticalAlign": "center"
         },
         "loyalty": {
           "x": 75.9,
@@ -135,12 +139,6 @@
         }
       },
       "manaSymbols": {
-        "W": "/symbols/W.svg",
-        "U": "/symbols/U.svg",
-        "B": "/symbols/B.svg",
-        "R": "/symbols/R.svg",
-        "G": "/symbols/G.svg",
-        "T": "/symbols/T.svg",
         "0": "/symbols/0.svg",
         "1": "/symbols/1.svg",
         "2": "/symbols/2.svg",
@@ -152,6 +150,12 @@
         "8": "/symbols/8.svg",
         "9": "/symbols/9.svg",
         "10": "/symbols/10.svg",
+        "W": "/symbols/W.svg",
+        "U": "/symbols/U.svg",
+        "B": "/symbols/B.svg",
+        "R": "/symbols/R.svg",
+        "G": "/symbols/G.svg",
+        "T": "/symbols/T.svg",
         "X": "/symbols/X.svg"
       }
     }

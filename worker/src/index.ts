@@ -19,6 +19,7 @@ const ALLOWED_ORIGINS = [
 const ALLOWED_DOMAINS = [
   'cards.scryfall.io',
   'svgs.scryfall.io',
+  'drive.google.com',
 ];
 
 function getCorsHeaders(request: Request): HeadersInit {
@@ -42,6 +43,15 @@ function isAllowedUrl(url: string): boolean {
   } catch {
     return false;
   }
+}
+
+function getCacheHeaders(imageUrl: string): string {
+  if (imageUrl.includes('drive.google.com')) {
+    // Drive uploads are immutable — cache aggressively
+    return 'public, max-age=31536000, immutable';
+  }
+  // Scryfall images rarely change — cache for 7 days browser, 30 days edge
+  return 'public, max-age=604800, s-maxage=2592000';
 }
 
 export default {
@@ -82,7 +92,7 @@ export default {
     }
 
     try {
-      // Fetch the image from Scryfall
+      // Fetch the image from the upstream server
       const imageResponse = await fetch(imageUrl, {
         headers: {
           'User-Agent': 'MTGProxyBuilder/1.0 (https://github.com/Miscoriadev/MTG-Proxy-Builder)',
@@ -105,7 +115,7 @@ export default {
         headers: {
           ...getCorsHeaders(request),
           'Content-Type': contentType,
-          'Cache-Control': 'public, max-age=86400, s-maxage=604800',
+          'Cache-Control': getCacheHeaders(imageUrl),
           'Vary': 'Origin',
         },
       });

@@ -20,8 +20,10 @@ This file contains instructions for Claude Code when working on this project.
 | `src/components/CardPreview/CardCanvas.tsx` | Canvas rendering with drag-to-pan and scroll-to-zoom |
 | `src/components/Controls/` | UI controls (card search, border/background/DPI selectors) |
 | `src/components/BorderEditor/BorderEditor.tsx` | Border configuration editor with live preview |
+| `src/components/Snackbar/` | Reusable toast notification system (SnackbarProvider + useSnackbar) |
 | `src/hooks/useCardBuilder.ts` | Central state management for selections and transforms |
 | `src/hooks/useBorderEditor.ts` | Border editor state, localStorage persistence, import/export |
+| `src/hooks/useGoogleDrive.ts` | Google Drive OAuth, file upload, sharing, and folder management |
 | `src/services/scryfallApi.ts` | Throttled Scryfall API wrapper |
 | `src/utils/canvasRenderer.ts` | Core rendering engine (text, symbols, images) |
 | `src/utils/manaParser.ts` | Parses mana cost strings into symbol objects |
@@ -61,9 +63,29 @@ The Border Editor (`/editor` route) allows users to create and customize border 
 - `TextboxOverlay` - Draggable/resizable text position control
 - `panels/` - Settings panels (GeneralInfo, ArtPosition, BorderImages, TextPosition)
 
+### Snackbar
+
+Reusable toast notification system via React Context. Wrap the app in `<SnackbarProvider>` (done in `main.tsx`), then call `showSnackbar(message, type?)` from any component via `useSnackbar()`. Supports `success`, `error`, and `info` types. Auto-dismisses after 3 seconds.
+
+### Google Drive Upload
+
+Users can upload custom images (borders, artwork) to their own Google Drive for hosting. Uses Google Identity Services for client-side OAuth2 with the `drive.file` scope (only files created by this app).
+
+**Flow:** Sign in → upload file → share publicly → return `drive.google.com/uc?export=view` URL.
+
+**Key details:**
+- Upload buttons appear next to every image URL field in the Border Editor's Border Images panel
+- When not signed in, upload buttons open a sign-in dialog; when signed in, they open the file picker directly
+- Files are uploaded to a dedicated folder ("Uploads - mtgproxies.tabletop.cloud") with timestamped names
+- Auth tokens are persisted in localStorage with expiry tracking
+- Google Drive URLs are routed through the CORS proxy (`imageProxy.ts`) for canvas rendering
+- Env vars: `VITE_GOOGLE_CLIENT_ID` (required), configured in `.env.local`
+
+**Components:** `useGoogleDrive` hook, `BorderImagesPanel` (inline upload buttons + sign-in dialog)
+
 ## CORS Proxy Worker
 
-The app uses a Cloudflare Worker to proxy Scryfall images with proper CORS headers for canvas rendering.
+The app uses a Cloudflare Worker to proxy images (Scryfall + Google Drive) with proper CORS headers for canvas rendering.
 
 ### Worker Setup (one-time)
 ```bash

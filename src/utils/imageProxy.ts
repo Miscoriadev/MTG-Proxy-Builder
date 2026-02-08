@@ -43,6 +43,18 @@ export function proxyImageUrl(url: string): string {
     return url;
   }
 
+  // Handle Google Drive images
+  if (url.includes('drive.google.com')) {
+    if (isDev) {
+      const path = url.replace('https://drive.google.com', '');
+      return `/gdrive-images${path}`;
+    }
+    if (CORS_PROXY_URL) {
+      return `${CORS_PROXY_URL}?url=${encodeURIComponent(url)}`;
+    }
+    return url;
+  }
+
   // Handle local assets (starting with /) - prepend BASE_URL
   if (url.startsWith('/')) {
     return `${baseUrl}${url.slice(1)}`;

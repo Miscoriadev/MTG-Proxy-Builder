@@ -216,6 +216,60 @@
   flex: 1;
 }
 
+/* Input with upload button */
+.inputWithUpload {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.inputWithUpload .textInput {
+  flex: 1;
+}
+
+.uploadButton {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid rgba(74, 144, 217, 0.4);
+  border-radius: 4px;
+  background: rgba(74, 144, 217, 0.1);
+  color: rgba(74, 144, 217, 0.8);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.uploadButton:hover {
+  background: rgba(74, 144, 217, 0.2);
+  color: #4a90d9;
+  border-color: rgba(74, 144, 217, 0.6);
+}
+
+.uploadButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.uploadSpinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(74, 144, 217, 0.3);
+  border-top-color: #4a90d9;
+  border-radius: 50%;
+  animation: uploadSpin 0.6s linear infinite;
+}
+
+@keyframes uploadSpin {
+  to { transform: rotate(360deg); }
+}
+
 /* Checkbox */
 .checkboxLabel {
   display: flex;
@@ -409,6 +463,108 @@
 
 .scaledCanvasContainer {
   display: inline-block;
+}
+
+/* Sign-in dialog (for upload buttons) */
+.signInBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: signInFadeIn 0.15s ease;
+}
+
+.signInDialog {
+  background: #1a1a2e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-width: 380px;
+  width: 90%;
+  animation: signInSlideUp 0.2s ease;
+}
+
+.signInTitle {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.signInSubtitle {
+  margin: 0 0 1rem 0;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.signInInfo {
+  padding: 0.75rem;
+  background: rgba(74, 144, 217, 0.08);
+  border: 1px solid rgba(74, 144, 217, 0.2);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+}
+
+.signInButton {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #4a90d9 0%, #8b5cf6 100%);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 0.5rem;
+}
+
+.signInButton:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.signInButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.signInClose {
+  width: 100%;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: color 0.2s ease;
+}
+
+.signInClose:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+@keyframes signInFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes signInSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 900px) {

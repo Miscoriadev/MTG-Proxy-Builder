@@ -67,6 +67,7 @@ export function CardBuilder({ borders, backgrounds, symbols }: CardBuilderProps)
     selectCard,
     selectBorder,
     selectBackground,
+    addCustomBackground,
     setBackgroundTransform,
     setDpi,
     setExportMarginMm,
@@ -109,6 +110,8 @@ export function CardBuilder({ borders, backgrounds, symbols }: CardBuilderProps)
             backgrounds={availableBackgrounds}
             selectedBackground={selectedBackground}
             onSelect={selectBackground}
+            onUploadComplete={addCustomBackground}
+            hasCard={!!selectedCard}
           />
 
           <DpiSelector

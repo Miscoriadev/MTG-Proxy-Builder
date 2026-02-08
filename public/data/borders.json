@@ -158,6 +158,166 @@
         "T": "/symbols/T.svg",
         "X": "/symbols/X.svg"
       }
+    },
+    {
+      "id": "0b57c09b-ebc6-4d54-af35-ab696520aa83",
+      "name": "Parchment",
+      "description": "Custom border configuration",
+      "images": {
+        "W": {
+          "base": "/borders/parchment/white.png",
+          "powerToughness": "/borders/parchment/white_pt.png",
+          "legendary": "/borders/parchment/white_legendary.png"
+        },
+        "U": {
+          "base": "/borders/parchment/blue.png",
+          "powerToughness": "/borders/parchment/blue_pt.png",
+          "legendary": "/borders/parchment/blue_legendary.png"
+        },
+        "B": {
+          "base": "/borders/parchment/black.png",
+          "powerToughness": "/borders/parchment/black_pt.png",
+          "legendary": "/borders/parchment/black_legendary.png"
+        },
+        "R": {
+          "base": "/borders/parchment/red.png",
+          "powerToughness": "/borders/parchment/red_pt.png",
+          "legendary": "/borders/parchment/red_legendary.png"
+        },
+        "G": {
+          "base": "/borders/parchment/green.png",
+          "powerToughness": "/borders/parchment/green_pt.png",
+          "legendary": "/borders/parchment/green_legendary.png"
+        },
+        "C": {
+          "base": "/borders/parchment/colorless.png",
+          "powerToughness": "/borders/parchment/colorless_pt.png",
+          "legendary": "/borders/parchment/colorless_legendary.png"
+        },
+        "M": {
+          "base": "/borders/parchment/multicolor.png",
+          "powerToughness": "/borders/parchment/multicolor_pt.png",
+          "legendary": "/borders/parchment/multicolor_legendary.png"
+        }
+      },
+      "art": {
+        "centerX": 50,
+        "centerY": 48,
+        "scale": 1.3,
+        "requiresFullArt": false
+      },
+      "textPositions": {
+        "name": {
+          "x": 12.2,
+          "y": 7.5,
+          "width": 56.2,
+          "height": 4.5,
+          "fontSize": 9,
+          "fontFamily": "Beleren2016, Beleren, serif",
+          "color": "#000000",
+          "align": "left",
+          "verticalAlign": "center"
+        },
+        "manaCost": {
+          "x": 61.8,
+          "y": 7.5,
+          "width": 26.4,
+          "height": 4.3,
+          "fontSize": 6.5,
+          "align": "right",
+          "verticalAlign": "center"
+        },
+        "typeLine": {
+          "x": 11.4,
+          "y": 57.4,
+          "width": 75.3,
+          "height": 3.2,
+          "fontSize": 8,
+          "fontFamily": "Beleren2016, Beleren, serif",
+          "color": "#000000",
+          "align": "left",
+          "verticalAlign": "center"
+        },
+        "oracleText": {
+          "x": 11.7,
+          "y": 63.5,
+          "width": 77.1,
+          "height": 21.9,
+          "fontSize": 8,
+          "fontFamily": "MPlantin, Georgia, serif",
+          "color": "#000000",
+          "align": "left",
+          "verticalAlign": "center"
+        },
+        "flavorText": {
+          "fontFamily": "MPlantin, Georgia, serif",
+          "color": "#000000",
+          "align": "left"
+        },
+        "powerToughness": {
+          "x": 71.5,
+          "y": 85,
+          "width": 14.9,
+          "height": 5.4,
+          "fontSize": 10,
+          "fontFamily": "Beleren2016, Beleren, serif",
+          "color": "#000000",
+          "align": "center",
+          "verticalAlign": "center"
+        },
+        "loyalty": {
+          "x": 75.9,
+          "y": 85.8,
+          "width": 10.6,
+          "height": 4,
+          "fontSize": 10,
+          "fontFamily": "Beleren2016, Beleren, serif",
+          "color": "#FFFFFF",
+          "align": "center"
+        },
+        "copyright": {
+          "x": 10,
+          "y": 89.5,
+          "width": 72.6,
+          "height": 2.5,
+          "fontSize": 5,
+          "fontFamily": "Beleren2016, Beleren, serif",
+          "color": "#000000",
+          "align": "left",
+          "verticalAlign": "center"
+        },
+        "artist": {
+          "x": 10,
+          "y": 91.8,
+          "width": 72.6,
+          "height": 2.5,
+          "fontSize": 5,
+          "fontFamily": "Beleren2016, Beleren, serif",
+          "color": "#000000",
+          "align": "left",
+          "icon": "/symbols/artist.svg"
+        }
+      },
+      "manaSymbols": {
+        "0": "/symbols/0.svg",
+        "1": "/symbols/1.svg",
+        "2": "/symbols/2.svg",
+        "3": "/symbols/3.svg",
+        "4": "/symbols/4.svg",
+        "5": "/symbols/5.svg",
+        "6": "/symbols/6.svg",
+        "7": "/symbols/7.svg",
+        "8": "/symbols/8.svg",
+        "9": "/symbols/9.svg",
+        "10": "/symbols/10.svg",
+        "W": "/symbols/W.svg",
+        "U": "/symbols/U.svg",
+        "B": "/symbols/B.svg",
+        "R": "/symbols/R.svg",
+        "G": "/symbols/G.svg",
+        "T": "/symbols/T.svg",
+        "X": "/symbols/X.svg"
+      }
     }
   ]
 }

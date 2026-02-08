@@ -1,7 +1,10 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { ScryfallCard, BorderConfig, BackgroundImage, BackgroundsData } from '../types';
 
 const CUSTOM_BACKGROUNDS_KEY = 'mtg-proxy-builder-custom-backgrounds';
+const BG_SETTINGS_KEY = 'mtg-proxy-builder-background-settings';
+
+const DEFAULT_TRANSFORM: BackgroundTransform = { scale: 1, offsetX: 0, offsetY: 0 };
 
 export interface BackgroundTransform {
   scale: number;
@@ -9,9 +12,23 @@ export interface BackgroundTransform {
   offsetY: number;
 }
 
+interface CardBgSettings {
+  selectedBgUrl: string | null;
+  transforms: Record<string, BackgroundTransform>;
+}
+
 function loadUserBackgrounds(): BackgroundsData {
   try {
     const raw = localStorage.getItem(CUSTOM_BACKGROUNDS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function loadBgSettings(): Record<string, CardBgSettings> {
+  try {
+    const raw = localStorage.getItem(BG_SETTINGS_KEY);
     return raw ? JSON.parse(raw) : {};
   } catch {
     return {};
@@ -37,10 +54,18 @@ export function useCardBuilder(
   // User-uploaded backgrounds persisted in localStorage
   const [userBackgrounds, setUserBackgrounds] = useState<BackgroundsData>(loadUserBackgrounds);
 
-  // Reset transform when background changes
-  useEffect(() => {
-    setBackgroundTransform({ scale: 1, offsetX: 0, offsetY: 0 });
-  }, [selectedBackgroundIndex]);
+  // Background settings persistence (selected bg + transforms per card)
+  const bgSettingsRef = useRef(loadBgSettings());
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const prevCardIdRef = useRef<string | null>(null);
+  const isCardTransitionRef = useRef(false);
+
+  const persistBgSettings = useCallback(() => {
+    clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      localStorage.setItem(BG_SETTINGS_KEY, JSON.stringify(bgSettingsRef.current));
+    }, 500);
+  }, []);
 
   const selectedBorder = useMemo(
     () => borders.find(b => b.id === selectedBorderId) || borders[0] || null,
@@ -77,21 +102,110 @@ export function useCardBuilder(
     [availableBackgrounds, selectedBackgroundIndex]
   );
 
-  const selectCard = useCallback((card: ScryfallCard) => {
-    setSelectedCard(card);
-    setSelectedBackgroundIndex(0);
+  // Restore saved background selection + transform when card changes
+  useEffect(() => {
+    const cardId = selectedCard?.id ?? null;
+    if (cardId === prevCardIdRef.current) return;
+    prevCardIdRef.current = cardId;
+
+    isCardTransitionRef.current = true;
+
+    if (!cardId || availableBackgrounds.length === 0) {
+      setBackgroundTransform(DEFAULT_TRANSFORM);
+      return;
+    }
+
+    const saved = bgSettingsRef.current[cardId];
+    if (saved?.selectedBgUrl) {
+      const idx = availableBackgrounds.findIndex(bg => bg.url === saved.selectedBgUrl);
+      if (idx !== -1) {
+        setSelectedBackgroundIndex(idx);
+        setBackgroundTransform(saved.transforms[saved.selectedBgUrl] || DEFAULT_TRANSFORM);
+      } else {
+        setSelectedBackgroundIndex(0);
+        const firstUrl = availableBackgrounds[0]?.url;
+        setBackgroundTransform(firstUrl && saved.transforms[firstUrl] || DEFAULT_TRANSFORM);
+      }
+    } else {
+      setSelectedBackgroundIndex(0);
+      setBackgroundTransform(DEFAULT_TRANSFORM);
+    }
+  }, [selectedCard?.id, availableBackgrounds]);
+
+  // Persist background settings on transform/selection changes (debounced)
+  useEffect(() => {
+    if (isCardTransitionRef.current) {
+      isCardTransitionRef.current = false;
+      return;
+    }
+    const cardId = selectedCard?.id;
+    const bgUrl = cardId ? availableBackgrounds[selectedBackgroundIndex]?.url : null;
+    if (!cardId || !bgUrl) return;
+
+    if (!bgSettingsRef.current[cardId]) {
+      bgSettingsRef.current[cardId] = { selectedBgUrl: null, transforms: {} };
+    }
+    bgSettingsRef.current[cardId].selectedBgUrl = bgUrl;
+    bgSettingsRef.current[cardId].transforms[bgUrl] = backgroundTransform;
+    persistBgSettings();
+  }, [selectedCard?.id, selectedBackgroundIndex, backgroundTransform, availableBackgrounds, persistBgSettings]);
+
+  // Flush pending saves on unmount
+  useEffect(() => {
+    return () => {
+      clearTimeout(saveTimerRef.current);
+      localStorage.setItem(BG_SETTINGS_KEY, JSON.stringify(bgSettingsRef.current));
+    };
   }, []);
+
+  const selectCard = useCallback((card: ScryfallCard) => {
+    // Save current card's bg state before switching
+    if (selectedCard) {
+      const cardId = selectedCard.id;
+      const bgUrl = availableBackgrounds[selectedBackgroundIndex]?.url;
+      if (!bgSettingsRef.current[cardId]) {
+        bgSettingsRef.current[cardId] = { selectedBgUrl: null, transforms: {} };
+      }
+      if (bgUrl) {
+        bgSettingsRef.current[cardId].selectedBgUrl = bgUrl;
+        bgSettingsRef.current[cardId].transforms[bgUrl] = backgroundTransform;
+      }
+      persistBgSettings();
+    }
+    setSelectedCard(card);
+    // Index + transform restored by the card-change effect
+  }, [selectedCard, selectedBackgroundIndex, backgroundTransform, availableBackgrounds, persistBgSettings]);
 
   const selectBorder = useCallback((border: BorderConfig) => {
     setSelectedBorderId(border.id);
   }, []);
 
   const selectBackground = useCallback((background: BackgroundImage) => {
-    const index = availableBackgrounds.findIndex(bg => bg.url === background.url);
-    if (index !== -1) {
-      setSelectedBackgroundIndex(index);
+    const newIndex = availableBackgrounds.findIndex(bg => bg.url === background.url);
+    if (newIndex === -1) return;
+
+    // Save current background's transform before switching
+    const cardId = selectedCard?.id;
+    if (cardId) {
+      const currentBgUrl = availableBackgrounds[selectedBackgroundIndex]?.url;
+      if (!bgSettingsRef.current[cardId]) {
+        bgSettingsRef.current[cardId] = { selectedBgUrl: null, transforms: {} };
+      }
+      if (currentBgUrl) {
+        bgSettingsRef.current[cardId].transforms[currentBgUrl] = backgroundTransform;
+      }
+      bgSettingsRef.current[cardId].selectedBgUrl = background.url;
+      persistBgSettings();
     }
-  }, [availableBackgrounds]);
+
+    setSelectedBackgroundIndex(newIndex);
+
+    // Restore saved transform for the new background
+    const savedTransform = cardId
+      ? bgSettingsRef.current[cardId]?.transforms[background.url]
+      : null;
+    setBackgroundTransform(savedTransform || DEFAULT_TRANSFORM);
+  }, [availableBackgrounds, selectedCard, selectedBackgroundIndex, backgroundTransform, persistBgSettings]);
 
   const addCustomBackground = useCallback((url: string) => {
     if (!selectedCard) return;

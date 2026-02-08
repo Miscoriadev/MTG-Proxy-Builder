@@ -20,7 +20,6 @@ This file contains instructions for Claude Code when working on this project.
 | `src/components/CardPreview/CardCanvas.tsx` | Canvas rendering with drag-to-pan and scroll-to-zoom |
 | `src/components/Controls/` | UI controls (card search, border/background/DPI selectors) |
 | `src/components/BorderEditor/BorderEditor.tsx` | Border configuration editor with live preview |
-| `src/components/GoogleDriveDialog/` | Modal dialog for Google Drive sign-in and image upload |
 | `src/components/Snackbar/` | Reusable toast notification system (SnackbarProvider + useSnackbar) |
 | `src/hooks/useCardBuilder.ts` | Central state management for selections and transforms |
 | `src/hooks/useBorderEditor.ts` | Border editor state, localStorage persistence, import/export |
@@ -82,7 +81,7 @@ Users can upload custom images (borders, artwork) to their own Google Drive for 
 - Google Drive URLs are routed through the CORS proxy (`imageProxy.ts`) for canvas rendering
 - Env vars: `VITE_GOOGLE_CLIENT_ID` (required), configured in `.env.local`
 
-**Components:** `GoogleDriveDialog` (Header modal), `useGoogleDrive` hook, `BorderImagesPanel` (inline upload buttons + sign-in dialog)
+**Components:** `useGoogleDrive` hook, `BorderImagesPanel` (inline upload buttons + sign-in dialog)
 
 ## CORS Proxy Worker
 

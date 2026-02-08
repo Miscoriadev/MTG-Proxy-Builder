@@ -1,10 +1,21 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { ScryfallCard, BorderConfig, BackgroundImage, BackgroundsData } from '../types';
 
+const CUSTOM_BACKGROUNDS_KEY = 'mtg-proxy-builder-custom-backgrounds';
+
 export interface BackgroundTransform {
   scale: number;
   offsetX: number;
   offsetY: number;
+}
+
+function loadUserBackgrounds(): BackgroundsData {
+  try {
+    const raw = localStorage.getItem(CUSTOM_BACKGROUNDS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
 }
 
 export function useCardBuilder(
@@ -22,6 +33,9 @@ export function useCardBuilder(
   });
   // Margin in mm for print export (0-5mm range, supports decimals)
   const [exportMarginMm, setExportMarginMm] = useState<number>(0);
+
+  // User-uploaded backgrounds persisted in localStorage
+  const [userBackgrounds, setUserBackgrounds] = useState<BackgroundsData>(loadUserBackgrounds);
 
   // Reset transform when background changes
   useEffect(() => {
@@ -48,11 +62,15 @@ export function useCardBuilder(
     }
 
     // Add custom backgrounds from backgrounds.json
-    const customBackgrounds = backgrounds[selectedCard.id] || [];
-    result.push(...customBackgrounds);
+    const jsonBackgrounds = backgrounds[selectedCard.id] || [];
+    result.push(...jsonBackgrounds);
+
+    // Add user-uploaded backgrounds from localStorage
+    const uploaded = userBackgrounds[selectedCard.id] || [];
+    result.push(...uploaded);
 
     return result;
-  }, [selectedCard, backgrounds]);
+  }, [selectedCard, backgrounds, userBackgrounds]);
 
   const selectedBackground = useMemo(
     () => availableBackgrounds[selectedBackgroundIndex] || availableBackgrounds[0] || null,
@@ -75,6 +93,22 @@ export function useCardBuilder(
     }
   }, [availableBackgrounds]);
 
+  const addCustomBackground = useCallback((url: string) => {
+    if (!selectedCard) return;
+    const cardId = selectedCard.id;
+    setUserBackgrounds(prev => {
+      const existing = prev[cardId] || [];
+      // Don't add duplicates
+      if (existing.some(bg => bg.url === url)) return prev;
+      const updated = {
+        ...prev,
+        [cardId]: [...existing, { url, label: `Upload ${existing.length + 1}`, source: 'custom' as const }],
+      };
+      localStorage.setItem(CUSTOM_BACKGROUNDS_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  }, [selectedCard]);
+
   return {
     selectedCard,
     selectedBorder,
@@ -86,6 +120,7 @@ export function useCardBuilder(
     selectCard,
     selectBorder,
     selectBackground,
+    addCustomBackground,
     setBackgroundTransform,
     setDpi,
     setExportMarginMm,

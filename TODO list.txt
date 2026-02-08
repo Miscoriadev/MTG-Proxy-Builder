@@ -1,2 +1,4 @@
 - Automatically put warnings on card types that are not supported (dual sided / adventures / battles / etc.)
 - When searching a card find other art prints on scryfal and make those available as selectable backgrounds
+- Add information icons & guided tour to the border builder
+- Add AI image outpainter with prompt like "improve the quality and detail of the image, expand the image along its edges over the black bordering area maintaining the 1:1 aspect ratio" (pre-create a canvas with black borders to control the scaling of the image)

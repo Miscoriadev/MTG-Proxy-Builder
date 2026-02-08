@@ -59,6 +59,7 @@ export function useCardBuilder(
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const prevCardIdRef = useRef<string | null>(null);
   const isCardTransitionRef = useRef(false);
+  const pendingBgUrlRef = useRef<string | null>(null);
 
   const persistBgSettings = useCallback(() => {
     clearTimeout(saveTimerRef.current);
@@ -150,6 +151,29 @@ export function useCardBuilder(
     persistBgSettings();
   }, [selectedCard?.id, selectedBackgroundIndex, backgroundTransform, availableBackgrounds, persistBgSettings]);
 
+  // Auto-select newly uploaded background once it appears in availableBackgrounds
+  useEffect(() => {
+    if (!pendingBgUrlRef.current) return;
+    const idx = availableBackgrounds.findIndex(bg => bg.url === pendingBgUrlRef.current);
+    if (idx === -1) return;
+
+    // Save current background's transform before switching
+    const cardId = selectedCard?.id;
+    if (cardId) {
+      const currentBgUrl = availableBackgrounds[selectedBackgroundIndex]?.url;
+      if (!bgSettingsRef.current[cardId]) {
+        bgSettingsRef.current[cardId] = { selectedBgUrl: null, transforms: {} };
+      }
+      if (currentBgUrl) {
+        bgSettingsRef.current[cardId].transforms[currentBgUrl] = backgroundTransform;
+      }
+    }
+
+    pendingBgUrlRef.current = null;
+    setSelectedBackgroundIndex(idx);
+    setBackgroundTransform(DEFAULT_TRANSFORM);
+  }, [availableBackgrounds, selectedCard, selectedBackgroundIndex, backgroundTransform]);
+
   // Flush pending saves on unmount
   useEffect(() => {
     return () => {
@@ -210,6 +234,7 @@ export function useCardBuilder(
   const addCustomBackground = useCallback((url: string) => {
     if (!selectedCard) return;
     const cardId = selectedCard.id;
+    pendingBgUrlRef.current = url;
     setUserBackgrounds(prev => {
       const existing = prev[cardId] || [];
       // Don't add duplicates

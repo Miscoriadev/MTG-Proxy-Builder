@@ -51,8 +51,13 @@ function getBorderImageUrl(
   variant: "base" | "legendary" | "powerToughness" = "base",
 ): string | undefined {
   if (!value) return undefined;
-  if (typeof value === "string") return value;
-  return value[variant] ?? value.base;
+  if (typeof value === "string") {
+    // Simple string format - only return for base variant
+    // Don't use base image as fallback for legendary/PT overlays
+    return variant === "base" ? value : undefined;
+  }
+  // Object format - return the specific variant (no fallback to base for overlays)
+  return value[variant];
 }
 
 async function ensureFontLoaded(fontFamily: string): Promise<void> {

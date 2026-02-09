@@ -1,0 +1,198 @@
+/* Backdrop overlay */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.15s ease;
+}
+
+/* Dialog container */
+.dialog {
+  background: #1a1a2e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-width: 800px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: slideUp 0.2s ease;
+}
+
+/* Dialog header */
+.dialogTitle {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.dialogSubtitle {
+  margin: 0 0 1rem 0;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Dialog content */
+.dialogContent {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+/* Close button */
+.closeButton {
+  width: 100%;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-top: 1rem;
+  transition: color 0.2s ease;
+}
+
+.closeButton:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Panel title with info button */
+.titleWrapper {
+  display: flex;
+  align-items: center;
+  margin: 0 0 1rem 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.infoButton {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0.125rem 0.375rem;
+  margin-left: 0.5rem;
+  transition: color 0.2s ease;
+  line-height: 1;
+}
+
+.infoButton:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Layer explanation items */
+.layerList {
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.layerItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.layerNumber {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(74, 144, 217, 0.2);
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4a90d9;
+}
+
+.layerContent {
+  text-align: center;
+}
+
+.layerTitle {
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.layerDescription {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.layerImage {
+  width: 90px;
+  height: 126px;
+  object-fit: contain;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.layerImage:hover {
+  border-color: rgba(74, 144, 217, 0.5);
+  transform: scale(1.05);
+}
+
+.layerPlaceholder {
+  width: 90px;
+  height: 126px;
+  border-radius: 4px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Warning box */
+.warningBox {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 6px;
+  color: #ffc107;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

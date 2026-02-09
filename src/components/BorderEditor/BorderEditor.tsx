@@ -1,17 +1,22 @@
-import { useRef, useCallback, useState, useEffect, useMemo } from 'react';
-import { BorderConfig, BackgroundsData, SymbolsData, BorderTextPositions } from '../../types';
-import { useBorderEditor } from '../../hooks';
-import { CardSelector } from '../Controls';
-import { CardCanvasHandle } from '../CardPreview';
-import { EditorCanvas } from './EditorCanvas';
+import { useRef, useCallback, useState, useEffect, useMemo } from "react";
+import {
+  BorderConfig,
+  BackgroundsData,
+  SymbolsData,
+  BorderTextPositions,
+} from "../../types";
+import { useBorderEditor } from "../../hooks";
+import { CardSelector } from "../Controls";
+import { CardCanvasHandle } from "../CardPreview";
+import { EditorCanvas } from "./EditorCanvas";
 import {
   GeneralInfoPanel,
   ArtPositionPanel,
   BorderImagesPanel,
   TextPositionList,
   TextPositionSettings,
-} from './panels';
-import styles from './BorderEditor.module.css';
+} from "./panels";
+import styles from "./BorderEditor.module.css";
 
 interface BorderEditorProps {
   borders: BorderConfig[];
@@ -19,7 +24,11 @@ interface BorderEditorProps {
   symbols: SymbolsData;
 }
 
-export function BorderEditor({ borders, backgrounds: _backgrounds, symbols }: BorderEditorProps) {
+export function BorderEditor({
+  borders,
+  backgrounds: _backgrounds,
+  symbols,
+}: BorderEditorProps) {
   const canvasRef = useRef<CardCanvasHandle>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -45,7 +54,9 @@ export function BorderEditor({ borders, backgrounds: _backgrounds, symbols }: Bo
   } = useBorderEditor(borders);
 
   // Canvas scale mode state
-  const [canvasScaleMode, setCanvasScaleMode] = useState<'actual' | 'fill'>('actual');
+  const [canvasScaleMode, setCanvasScaleMode] = useState<"actual" | "fill">(
+    "actual",
+  );
   const previewSectionRef = useRef<HTMLDivElement>(null);
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
 
@@ -59,13 +70,13 @@ export function BorderEditor({ borders, backgrounds: _backgrounds, symbols }: Bo
       setWindowHeight(window.innerHeight);
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // Calculate scale based on mode
   const canvasScale = useMemo(() => {
-    if (canvasScaleMode === 'fill') {
+    if (canvasScaleMode === "fill") {
       const padding = 200; // Account for header, controls row, and margins
       return Math.min((windowHeight - padding) / CANVAS_HEIGHT, 2);
     }
@@ -76,15 +87,15 @@ export function BorderEditor({ borders, backgrounds: _backgrounds, symbols }: Bo
     const file = e.target.files?.[0];
     if (file) {
       importFromJson(file);
-      e.target.value = ''; // Reset input
+      e.target.value = ""; // Reset input
     }
   };
 
   const handleDelete = useCallback(() => {
     const confirmed = window.confirm(
-      'This border configuration will be permanently removed from your local storage.\n\n' +
-      'If you want to keep it, download the JSON file first.\n\n' +
-      'Are you sure you want to delete this border?'
+      "This border configuration will be permanently removed from your local storage.\n\n" +
+        "If you want to keep it, download the JSON file first.\n\n" +
+        "Are you sure you want to delete this border?",
     );
 
     if (confirmed) {
@@ -93,7 +104,9 @@ export function BorderEditor({ borders, backgrounds: _backgrounds, symbols }: Bo
   }, [editingConfig.id, deleteCustomBorder]);
 
   const selectedPosition = selectedTextPositionKey
-    ? editingConfig.textPositions[selectedTextPositionKey as keyof BorderTextPositions]
+    ? editingConfig.textPositions[
+        selectedTextPositionKey as keyof BorderTextPositions
+      ]
     : null;
 
   // Get background URL for preview
@@ -108,35 +121,39 @@ export function BorderEditor({ borders, backgrounds: _backgrounds, symbols }: Bo
               className={styles.scaledCanvasContainer}
               style={{
                 transform: `scale(${canvasScale})`,
-                transformOrigin: 'top center',
+                transformOrigin: "top center",
                 width: CANVAS_WIDTH,
                 height: CANVAS_HEIGHT,
               }}
             >
               <EditorCanvas
-              ref={canvasRef}
-              card={previewCard}
-              border={editingConfig}
-              backgroundUrl={backgroundUrl}
-              backgroundTransform={backgroundTransform}
-              onBackgroundTransformChange={setBackgroundTransform}
-              symbolsData={symbols}
-              selectedTextPositionKey={selectedTextPositionKey}
-              onTextPositionChange={updateTextPosition}
-            />
+                ref={canvasRef}
+                card={previewCard}
+                border={editingConfig}
+                backgroundUrl={backgroundUrl}
+                backgroundTransform={backgroundTransform}
+                onBackgroundTransformChange={setBackgroundTransform}
+                symbolsData={symbols}
+                selectedTextPositionKey={selectedTextPositionKey}
+                onTextPositionChange={updateTextPosition}
+              />
             </div>
           ) : (
             <div className={styles.placeholder}>
               Select a card to preview
               <br />
-              <span className={styles.subtext}>Use the card selector below</span>
+              <span className={styles.subtext}>
+                Use the card selector below
+              </span>
             </div>
           )
         ) : (
           <div className={styles.placeholder}>
             Create or load a border to begin editing
             <br />
-            <span className={styles.subtext}>Use the selection panel on the right</span>
+            <span className={styles.subtext}>
+              Use the selection panel on the right
+            </span>
           </div>
         )}
         {hasActiveConfig && (
@@ -144,11 +161,16 @@ export function BorderEditor({ borders, backgrounds: _backgrounds, symbols }: Bo
             className={styles.canvasControlsRow}
             style={{ marginTop: `${(canvasScale - 1) * CANVAS_HEIGHT + 16}px` }}
           >
-            <CardSelector selectedCard={previewCard} onSelect={setPreviewCard} />
+            <CardSelector
+              selectedCard={previewCard}
+              onSelect={setPreviewCard}
+            />
             <select
               className={styles.scaleSelect}
               value={canvasScaleMode}
-              onChange={(e) => setCanvasScaleMode(e.target.value as 'actual' | 'fill')}
+              onChange={(e) =>
+                setCanvasScaleMode(e.target.value as "actual" | "fill")
+              }
             >
               <option value="actual">Actual size</option>
               <option value="fill">Fill</option>
@@ -168,15 +190,19 @@ export function BorderEditor({ borders, backgrounds: _backgrounds, symbols }: Bo
               <label className={styles.fieldLabel}>Edit existing</label>
               <select
                 className={styles.select}
-                value={hasActiveConfig ? editingConfig.id : ''}
+                value={hasActiveConfig ? editingConfig.id : ""}
                 onChange={(e) => {
-                  const border = customBorders.find((b) => b.id === e.target.value);
+                  const border = customBorders.find(
+                    (b) => b.id === e.target.value,
+                  );
                   if (border) loadFromExisting(border);
                 }}
                 disabled={customBorders.length === 0}
               >
                 <option value="" disabled>
-                  {customBorders.length === 0 ? 'No custom borders' : 'Select a border...'}
+                  {customBorders.length === 0
+                    ? "No custom borders"
+                    : "Select a border..."}
                 </option>
                 {customBorders.map((b) => (
                   <option key={b.id} value={b.id}>
@@ -193,14 +219,14 @@ export function BorderEditor({ borders, backgrounds: _backgrounds, symbols }: Bo
                 className={styles.actionButton}
                 onClick={() => fileInputRef.current?.click()}
               >
-                Load JSON
+                Load config
               </button>
               <button
                 className={styles.actionButton}
                 onClick={exportAsJson}
                 disabled={!hasActiveConfig}
               >
-                Download JSON
+                Download config
               </button>
               {hasActiveConfig && (
                 <button
@@ -241,7 +267,9 @@ export function BorderEditor({ borders, backgrounds: _backgrounds, symbols }: Bo
                 <TextPositionSettings
                   positionKey={selectedTextPositionKey}
                   position={selectedPosition}
-                  onChange={(pos) => updateTextPosition(selectedTextPositionKey, pos)}
+                  onChange={(pos) =>
+                    updateTextPosition(selectedTextPositionKey, pos)
+                  }
                 />
               )}
             </>
@@ -252,7 +280,7 @@ export function BorderEditor({ borders, backgrounds: _backgrounds, symbols }: Bo
             ref={fileInputRef}
             type="file"
             accept=".json"
-            style={{ display: 'none' }}
+            style={{ display: "none" }}
             onChange={handleFileImport}
           />
         </div>

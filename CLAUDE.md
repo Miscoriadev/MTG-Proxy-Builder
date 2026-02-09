@@ -11,6 +11,9 @@ This file contains instructions for Claude Code when working on this project.
 - **HTML5 Canvas** for card rendering
 - **Scryfall API** for card data and search
 
+### Development Notes
+- **To check compilation:** Run `npm run build` (not `npm run dev`). The dev server is typically already running, so use build to verify TypeScript compiles correctly.
+
 ### Key Components
 
 | File | Purpose |
@@ -21,6 +24,7 @@ This file contains instructions for Claude Code when working on this project.
 | `src/components/Controls/` | UI controls (card search, border/background/DPI selectors) |
 | `src/components/BorderEditor/BorderEditor.tsx` | Border configuration editor with live preview |
 | `src/components/Snackbar/` | Reusable toast notification system (SnackbarProvider + useSnackbar) |
+| `src/components/InfoDialog/` | Reusable info icon + dialog for panel help content (InfoDialog + PanelTitleWithInfo) |
 | `src/hooks/useCardBuilder.ts` | Central state management for selections and transforms |
 | `src/hooks/useBorderEditor.ts` | Border editor state, localStorage persistence, import/export |
 | `src/hooks/useGoogleDrive.ts` | Google Drive OAuth, file upload, sharing, and folder management |
@@ -66,6 +70,33 @@ The Border Editor (`/editor` route) allows users to create and customize border 
 ### Snackbar
 
 Reusable toast notification system via React Context. Wrap the app in `<SnackbarProvider>` (done in `main.tsx`), then call `showSnackbar(message, type?)` from any component via `useSnackbar()`. Supports `success`, `error`, and `info` types. Auto-dismisses after 3 seconds.
+
+### InfoDialog
+
+Reusable info icon + dialog component for displaying help content in panels. Located in `src/components/InfoDialog/`.
+
+**Components:**
+- `InfoDialog` - Modal dialog with title, subtitle, content, and close button
+- `PanelTitleWithInfo` - Panel title with integrated info icon that opens an InfoDialog
+
+**Usage:**
+```tsx
+import { PanelTitleWithInfo } from '../../InfoDialog';
+
+<PanelTitleWithInfo
+  title="Panel Title"
+  dialogTitle="Help Title"
+  dialogSubtitle="Optional subtitle"
+>
+  <YourHelpContent />
+</PanelTitleWithInfo>
+```
+
+**Features:**
+- ESC key closes dialog
+- Click backdrop to close
+- Fade-in and slide-up animations
+- CSS classes for layer-style content: `.layerList`, `.layerItem`, `.layerNumber`, `.layerImage`
 
 ### Google Drive Upload
 

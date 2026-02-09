@@ -26,7 +26,8 @@
       "mcp__chrome-devtools__list_console_messages",
       "mcp__chrome-devtools__get_console_message",
       "mcp__chrome-devtools__take_snapshot",
-      "Bash(npm run deploy:*)"
+      "Bash(npm run deploy:*)",
+      "mcp__chrome-devtools__evaluate_script"
     ]
   }
 }

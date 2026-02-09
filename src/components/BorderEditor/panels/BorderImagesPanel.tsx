@@ -39,6 +39,7 @@ export function BorderImagesPanel({
 }: BorderImagesPanelProps) {
   const [expandedColor, setExpandedColor] = useState<string | null>(null);
   const [showSignInDialog, setShowSignInDialog] = useState(false);
+  const [addMenuOpen, setAddMenuOpen] = useState<string | null>(null);
   const {
     isSignedIn,
     isProcessing,
@@ -67,9 +68,13 @@ export function BorderImagesPanel({
     showSnackbar("Upload successful!");
   }, [lastUploadedUrl, clearLastUrl, showSnackbar]);
 
-  const handleSimpleChange = (color: string, url: string) => {
-    onChange({ ...images, [color]: url });
-  };
+  // Close add menu when clicking outside
+  useEffect(() => {
+    if (!addMenuOpen) return;
+    const handleClick = () => setAddMenuOpen(null);
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, [addMenuOpen]);
 
   const handleVariantChange = (
     color: string,
@@ -90,16 +95,24 @@ export function BorderImagesPanel({
     onChange({ ...images, [color]: variants });
   };
 
-  const toggleVariants = (color: string) => {
+  const addLayer = (color: string, layer: "legendary" | "powerToughness") => {
     const current = images[color];
-    if (isVariants(current)) {
-      onChange({ ...images, [color]: current.base });
-    } else {
-      onChange({
-        ...images,
-        [color]: { base: typeof current === "string" ? current : "" },
-      });
-    }
+    const variants: BorderImageVariants = isVariants(current)
+      ? { ...current }
+      : { base: typeof current === "string" ? current : "" };
+
+    variants[layer] = "";
+    onChange({ ...images, [color]: variants });
+    setAddMenuOpen(null);
+  };
+
+  const removeLayer = (color: string, layer: "legendary" | "powerToughness") => {
+    const current = images[color];
+    if (!isVariants(current)) return;
+
+    const variants = { ...current };
+    delete variants[layer];
+    onChange({ ...images, [color]: variants });
   };
 
   const handleUpload = useCallback(
@@ -152,67 +165,29 @@ export function BorderImagesPanel({
 
               {isExpanded && (
                 <div className={styles.colorContent}>
-                  <label className={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      checked={hasVariants}
-                      onChange={() => toggleVariants(color)}
-                    />
-                    Use variants (legendary, P/T)
-                  </label>
+                  {/* Base image field - always shown */}
+                  <ImageField
+                    label="Base"
+                    value={hasVariants ? value.base : (typeof value === "string" ? value : "")}
+                    onChange={(url) => handleVariantChange(color, "base", url)}
+                    placeholder="/borders/style/color.png"
+                    uploadName={`${COLOR_LABELS[color].toLowerCase()}_base`}
+                    isSignedIn={isSignedIn}
+                    isUploading={isProcessing}
+                    scriptsLoaded={scriptsLoaded}
+                    onSignIn={requestSignIn}
+                    onUpload={handleUpload}
+                  />
 
-                  {hasVariants ? (
-                    <>
-                      <ImageField
-                        label="Base"
-                        value={value.base}
-                        onChange={(url) =>
-                          handleVariantChange(color, "base", url)
-                        }
-                        placeholder="/borders/style/color.png"
-                        uploadName={`${COLOR_LABELS[color].toLowerCase()}_base`}
-                        isSignedIn={isSignedIn}
-                        isUploading={isProcessing}
-                        scriptsLoaded={scriptsLoaded}
-                        onSignIn={requestSignIn}
-                        onUpload={handleUpload}
-                      />
-                      <ImageField
-                        label="Legendary"
-                        value={value.legendary || ""}
-                        onChange={(url) =>
-                          handleVariantChange(color, "legendary", url)
-                        }
-                        placeholder="/borders/style/color_legendary.png"
-                        uploadName={`${COLOR_LABELS[color].toLowerCase()}_legendary`}
-                        isSignedIn={isSignedIn}
-                        isUploading={isProcessing}
-                        scriptsLoaded={scriptsLoaded}
-                        onSignIn={requestSignIn}
-                        onUpload={handleUpload}
-                      />
-                      <ImageField
-                        label="Power/Toughness"
-                        value={value.powerToughness || ""}
-                        onChange={(url) =>
-                          handleVariantChange(color, "powerToughness", url)
-                        }
-                        placeholder="/borders/style/color_pt.png"
-                        uploadName={`${COLOR_LABELS[color].toLowerCase()}_pt`}
-                        isSignedIn={isSignedIn}
-                        isUploading={isProcessing}
-                        scriptsLoaded={scriptsLoaded}
-                        onSignIn={requestSignIn}
-                        onUpload={handleUpload}
-                      />
-                    </>
-                  ) : (
-                    <ImageField
-                      label="URL"
-                      value={typeof value === "string" ? value : ""}
-                      onChange={(url) => handleSimpleChange(color, url)}
-                      placeholder="/borders/style/color.png"
-                      uploadName={COLOR_LABELS[color].toLowerCase()}
+                  {/* Legendary layer - shown if added */}
+                  {hasVariants && value.legendary !== undefined && (
+                    <ImageFieldWithRemove
+                      label="Legendary"
+                      value={value.legendary}
+                      onChange={(url) => handleVariantChange(color, "legendary", url)}
+                      onRemove={() => removeLayer(color, "legendary")}
+                      placeholder="/borders/style/color_legendary.png"
+                      uploadName={`${COLOR_LABELS[color].toLowerCase()}_legendary`}
                       isSignedIn={isSignedIn}
                       isUploading={isProcessing}
                       scriptsLoaded={scriptsLoaded}
@@ -220,6 +195,36 @@ export function BorderImagesPanel({
                       onUpload={handleUpload}
                     />
                   )}
+
+                  {/* Power/Toughness layer - shown if added */}
+                  {hasVariants && value.powerToughness !== undefined && (
+                    <ImageFieldWithRemove
+                      label="Power/Toughness"
+                      value={value.powerToughness}
+                      onChange={(url) => handleVariantChange(color, "powerToughness", url)}
+                      onRemove={() => removeLayer(color, "powerToughness")}
+                      placeholder="/borders/style/color_pt.png"
+                      uploadName={`${COLOR_LABELS[color].toLowerCase()}_pt`}
+                      isSignedIn={isSignedIn}
+                      isUploading={isProcessing}
+                      scriptsLoaded={scriptsLoaded}
+                      onSignIn={requestSignIn}
+                      onUpload={handleUpload}
+                    />
+                  )}
+
+                  {/* Add layer button */}
+                  <AddLayerButton
+                    color={color}
+                    hasLegendary={hasVariants && value.legendary !== undefined}
+                    hasPowerToughness={hasVariants && value.powerToughness !== undefined}
+                    isMenuOpen={addMenuOpen === color}
+                    onToggleMenu={(e) => {
+                      e.stopPropagation();
+                      setAddMenuOpen(addMenuOpen === color ? null : color);
+                    }}
+                    onAddLayer={(layer) => addLayer(color, layer)}
+                  />
                 </div>
               )}
             </div>
@@ -310,6 +315,142 @@ function ImageField({
           {isUploading ? <span className={styles.uploadSpinner} /> : "\u2191"}
         </button>
       </div>
+    </div>
+  );
+}
+
+interface ImageFieldWithRemoveProps extends ImageFieldProps {
+  onRemove: () => void;
+}
+
+function ImageFieldWithRemove({
+  label,
+  value,
+  onChange,
+  onRemove,
+  placeholder,
+  uploadName,
+  isSignedIn,
+  isUploading,
+  scriptsLoaded,
+  onSignIn,
+  onUpload,
+}: ImageFieldWithRemoveProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        onUpload(file, onChange, uploadName);
+      }
+      e.target.value = "";
+    },
+    [onUpload, onChange, uploadName],
+  );
+
+  const handleClick = useCallback(() => {
+    if (!isSignedIn) {
+      onSignIn();
+      return;
+    }
+    fileInputRef.current?.click();
+  }, [isSignedIn, onSignIn]);
+
+  return (
+    <div className={styles.field}>
+      <label className={styles.fieldLabel}>{label}</label>
+      <div className={styles.fieldWithRemove}>
+        <div className={styles.inputWithUpload}>
+          <input
+            type="text"
+            className={styles.textInput}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder}
+          />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={handleFileChange}
+            style={{ display: "none" }}
+          />
+          <button
+            type="button"
+            className={styles.uploadButton}
+            onClick={handleClick}
+            disabled={isUploading || !scriptsLoaded}
+            title={
+              !isSignedIn ? "Sign in to Google Drive" : "Upload with Google Drive"
+            }
+          >
+            {isUploading ? <span className={styles.uploadSpinner} /> : "\u2191"}
+          </button>
+        </div>
+        <button
+          type="button"
+          className={styles.removeButton}
+          onClick={onRemove}
+          title="Remove layer"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  );
+}
+
+interface AddLayerButtonProps {
+  color: string;
+  hasLegendary: boolean;
+  hasPowerToughness: boolean;
+  isMenuOpen: boolean;
+  onToggleMenu: (e: React.MouseEvent) => void;
+  onAddLayer: (layer: "legendary" | "powerToughness") => void;
+}
+
+function AddLayerButton({
+  hasLegendary,
+  hasPowerToughness,
+  isMenuOpen,
+  onToggleMenu,
+  onAddLayer,
+}: AddLayerButtonProps) {
+  // If both layers are already added, don't show the button
+  if (hasLegendary && hasPowerToughness) return null;
+
+  return (
+    <div className={styles.addLayerWrapper}>
+      <button
+        type="button"
+        className={styles.addLayerButton}
+        onClick={onToggleMenu}
+      >
+        + Add layer
+      </button>
+      {isMenuOpen && (
+        <div className={styles.addLayerMenu}>
+          {!hasLegendary && (
+            <button
+              type="button"
+              className={styles.addLayerMenuItem}
+              onClick={() => onAddLayer("legendary")}
+            >
+              Legendary
+            </button>
+          )}
+          {!hasPowerToughness && (
+            <button
+              type="button"
+              className={styles.addLayerMenuItem}
+              onClick={() => onAddLayer("powerToughness")}
+            >
+              Power/Toughness
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

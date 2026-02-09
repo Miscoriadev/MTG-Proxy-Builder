@@ -11,6 +11,9 @@ This file contains instructions for Claude Code when working on this project.
 - **HTML5 Canvas** for card rendering
 - **Scryfall API** for card data and search
 
+### Development Notes
+- **To check compilation:** Run `npm run build` (not `npm run dev`). The dev server is typically already running, so use build to verify TypeScript compiles correctly.
+
 ### Key Components
 
 | File | Purpose |

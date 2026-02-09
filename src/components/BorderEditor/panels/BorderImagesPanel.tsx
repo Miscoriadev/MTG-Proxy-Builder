@@ -2,7 +2,9 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { BorderColorImages, BorderImageValue, BorderImageVariants } from '../../../types';
 import { useGoogleDrive } from '../../../hooks';
 import { useSnackbar } from '../../Snackbar';
+import { PanelTitleWithInfo } from '../../InfoDialog';
 import styles from '../BorderEditor.module.css';
+import infoStyles from '../../InfoDialog/InfoDialog.module.css';
 
 interface BorderImagesPanelProps {
   images: BorderColorImages;
@@ -97,7 +99,13 @@ export function BorderImagesPanel({ images, onChange }: BorderImagesPanelProps) 
 
   return (
     <div className={styles.panel}>
-      <h3 className={styles.panelTitle}>Border Images</h3>
+      <PanelTitleWithInfo
+        title="Border Images"
+        dialogTitle="Understanding Border Layers"
+        dialogSubtitle="First the card art is drawn, then the base border is layered on top (the art shows through transparent pixels). For legendary cards, the legendary overlay is added next. For creatures, the power/toughness box is drawn. Finally, text is rendered on top of all layers."
+      >
+        <BorderImagesLayerInfo />
+      </PanelTitleWithInfo>
 
       {showSignInDialog && (
         <SignInDialog
@@ -300,6 +308,66 @@ function SignInDialog({ scriptsLoaded, onSignIn, onClose }: SignInDialogProps) {
           Close
         </button>
       </div>
+    </div>
+  );
+}
+
+const LAYER_INFO = [
+  {
+    num: 1,
+    title: 'Background',
+    desc: 'Card artwork (bottommost)',
+    img: null,
+  },
+  {
+    num: 2,
+    title: 'Base Border',
+    desc: 'Main border frame',
+    img: '/borders/classic/blue.png',
+  },
+  {
+    num: 3,
+    title: 'Legendary',
+    desc: 'For legendary cards',
+    img: '/borders/classic/blue_legendary.png',
+  },
+  {
+    num: 4,
+    title: 'P/T Box',
+    desc: 'For creature cards',
+    img: '/borders/classic/blue_pt.png',
+  },
+  {
+    num: 5,
+    title: 'Text',
+    desc: 'Name, cost, type, etc.',
+    img: null,
+  },
+];
+
+function BorderImagesLayerInfo() {
+  return (
+    <div className={infoStyles.layerList}>
+      {LAYER_INFO.map((layer) => (
+        <div key={layer.num} className={infoStyles.layerItem}>
+          <span className={infoStyles.layerNumber}>{layer.num}</span>
+          {layer.img ? (
+            <img
+              src={layer.img}
+              alt={layer.title}
+              className={infoStyles.layerImage}
+              title="Click to view full size"
+              onClick={() => window.open(layer.img!, '_blank')}
+            />
+          ) : (
+            <div className={infoStyles.layerPlaceholder} />
+          )}
+          <div className={infoStyles.layerContent}>
+            <div className={infoStyles.layerTitle}>{layer.title}</div>
+            <div className={infoStyles.layerDescription}>{layer.desc}</div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
